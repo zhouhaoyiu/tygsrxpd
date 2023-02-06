@@ -2,6 +2,23 @@
 import { onMounted, ref, type Ref } from "vue";
 interface IWorkForm {
   workIdentifier: string;
+  workType: string;
+  workSource: string;
+  workContent: string;
+  contactPerson: string;
+  contactPhone: string;
+  workAddress: string;
+  householdNumber: string;
+  waterMeterNumber: string;
+  arrivalTimeLimit: string;
+  completionTimeLimit: string;
+  workArea: string;
+  waterUseNature: string;
+  workMode: string;
+  callerPhone: string;
+  fileNo: string;
+  label: string;
+  remark: string;
 }
 
 let workTextTemplate = ref(`
@@ -137,33 +154,17 @@ function workTextTemplateParser(workTextTemplate: string) {
     .replace(/来电电话/, "")
     .replace(/案卷号/, "")
     .trim();
-  // 案卷号和标签之间的是案卷号的内容，可能为空,所以要判断一下
-  // const ajh = (workTextTemplate as string).match(/案卷号[\s\S]*标签/)
-  //   ? (workTextTemplate as string)
-  //       .match(/案卷号[\s\S]*标签/)![0]
-  //       .replace(/案卷号/, "")
-  //       .replace(/标签/, "")
-  //       .trim()
-  //   : "";
-  const ajh = (workTextTemplate as string).match(/案卷号[\s\S]*标签/)
-    ? (workTextTemplate as string)!
-        .match(/案卷号[\s\S]*标签/)![0]
-        // 案卷号
-
-        // 标签
-        // 取得案卷号的内容，去掉案卷号和标签还有标签之后的内容
-        .replace(/案卷号/, "")
-        .replace(/标签/, "")
-        .trim()
-    : // .replace(/案卷号/, "")
-      // .replace(/标签/, "")
-      // .trim()
-      "";
-  // const ajh = (workTextTemplate as string)
-  //   .match(/案卷号[\s\S]*标签/)![0]
-  //   .replace(/案卷号/, "")
-  //   .replace(/标签/, "")
-  //   .trim();
+  const ajh =
+    (workTextTemplate as string)
+      // 去掉标签之后的内容
+      .match(/案卷号[\s\S]*标签/)![0]
+      .replace(/标签[\s\S]*$/, "")
+      // 去掉案卷号
+      .replace(/案卷号/, "")
+      // 去掉标签
+      .replace(/标签/, "")
+      // 去掉空行
+      .trim() || "无案卷号";
   const bq = (workTextTemplate as string)
     .match(/标签[\s\S]*备注/)![0]
     .replace(/标签/, "")
@@ -173,6 +174,25 @@ function workTextTemplateParser(workTextTemplate: string) {
     .match(/备注[\s\S]*$/)![0]
     .replace(/备注/, "")
     .trim();
+
+  workForm.value.workIdentifier = ajbh;
+  workForm.value.workType = ywlx;
+  workForm.value.workSource = fyly;
+  workForm.value.workContent = fynr;
+  workForm.value.contactPerson = lxr;
+  workForm.value.contactPhone = lxdh;
+  workForm.value.workAddress = fydz;
+  workForm.value.householdNumber = hh;
+  workForm.value.waterMeterNumber = bsh;
+  workForm.value.arrivalTimeLimit = dcsx;
+  workForm.value.completionTimeLimit = wcsx;
+  workForm.value.workArea = fyqm;
+  workForm.value.waterUseNature = ysxz;
+  workForm.value.workMode = fyfs;
+  workForm.value.callerPhone = lddh;
+  workForm.value.fileNo = ajh;
+  workForm.value.label = bq;
+  workForm.value.remark = bz;
   console.log(ajh);
 
   console.log(
@@ -192,7 +212,8 @@ function workTextTemplateParser(workTextTemplate: string) {
     "%33反映方式\n" + fyfs + "\n",
     "%33来电电话\n" + lddh + "\n",
     "%33案卷号\n" + ajh + "\n",
-    "%33标签\n" + bq
+    "%33标签\n" + bq + "\n",
+    "%33备注\n" + bz + "\n"
   );
   console.timeEnd("workTextTemplateParser");
 }
@@ -204,6 +225,23 @@ type TWorkText = string;
 let workText: Ref<TWorkText> = ref("");
 let workForm: Ref<IWorkForm> = ref({
   workIdentifier: "",
+  workType: "",
+  workSource: "",
+  workContent: "",
+  contactPerson: "",
+  contactPhone: "",
+  workAddress: "",
+  householdNumber: "",
+  waterMeterNumber: "",
+  arrivalTimeLimit: "",
+  completionTimeLimit: "",
+  workArea: "",
+  waterUseNature: "",
+  workMode: "",
+  callerPhone: "",
+  fileNo: "",
+  label: "",
+  remark: "",
 });
 </script>
 
@@ -221,11 +259,139 @@ let workForm: Ref<IWorkForm> = ref({
       </el-button>
     </div>
     <div>
-      <div>新建工单</div>
-      <el-input
-        v-model="workForm.workIdentifier"
-        placeholder="请输入工单编号"
-      ></el-input>
+      <h2>新建工单</h2>
+      <div style="display: flex; flex-direction: row">
+        <div style="padding: 0px 16px">
+          <div>
+            工单编号
+            <el-input
+              v-model="workForm.workIdentifier"
+              placeholder="请输入工单编号"
+            ></el-input>
+          </div>
+          <div>
+            业务类型
+            <el-input
+              v-model="workForm.workType"
+              placeholder="请输入业务类型"
+            ></el-input>
+          </div>
+          <div>
+            反映来源
+            <el-input
+              v-model="workForm.workSource"
+              placeholder="请输入反映来源"
+            ></el-input>
+          </div>
+          <div>
+            反映内容
+            <el-input
+              v-model="workForm.workContent"
+              placeholder="请输入反映内容"
+            ></el-input>
+          </div>
+          <div>
+            联系人
+            <el-input
+              v-model="workForm.contactPerson"
+              placeholder="请输入联系人"
+            ></el-input>
+          </div>
+          <div>
+            联系电话
+            <el-input
+              v-model="workForm.contactPhone"
+              placeholder="请输入联系电话"
+            ></el-input>
+          </div>
+          <div>
+            反映地址
+            <el-input
+              v-model="workForm.workAddress"
+              placeholder="请输入反映地址"
+            ></el-input>
+          </div>
+          <div>
+            户号
+            <el-input
+              v-model="workForm.householdNumber"
+              placeholder="请输入户号"
+            ></el-input>
+          </div>
+          <div>
+            表身号
+            <el-input
+              v-model="workForm.waterMeterNumber"
+              placeholder="请输入表身号"
+            ></el-input>
+          </div>
+          <div>
+            到场时限
+            <el-input
+              v-model="workForm.arrivalTimeLimit"
+              placeholder="请输入到场时限"
+            ></el-input>
+          </div>
+          <div>
+            完成时限
+            <el-input
+              v-model="workForm.completionTimeLimit"
+              placeholder="请输入完成时限"
+            ></el-input>
+          </div>
+        </div>
+        <div>
+          <div>
+            反映区名
+            <el-input
+              v-model="workForm.workArea"
+              placeholder="请输入反映区名"
+            ></el-input>
+          </div>
+          <div>
+            用水性质
+            <el-input
+              v-model="workForm.waterUseNature"
+              placeholder="请输入用水性质"
+            ></el-input>
+          </div>
+          <div>
+            反映方式
+            <el-input
+              v-model="workForm.workMode"
+              placeholder="请输入反映方式"
+            ></el-input>
+          </div>
+          <div>
+            来电电话
+            <el-input
+              v-model="workForm.callerPhone"
+              placeholder="请输入来电电话"
+            ></el-input>
+          </div>
+          <div>
+            案卷号
+            <el-input
+              v-model="workForm.fileNo"
+              placeholder="请输入案卷号"
+            ></el-input>
+          </div>
+          <div>
+            标签
+            <el-input
+              v-model="workForm.label"
+              placeholder="请输入标签"
+            ></el-input>
+          </div>
+          <div>
+            备注
+            <el-input
+              v-model="workForm.remark"
+              placeholder="请输入备注"
+            ></el-input>
+          </div>
+        </div>
+      </div>
       <el-button type="primary">提交</el-button>
     </div>
   </div>
@@ -236,8 +402,9 @@ let workForm: Ref<IWorkForm> = ref({
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
+  flex-direction: row;
   height: 100vh;
+  overflow: auto;
   background-color: #f5f5f5;
 }
 </style>
