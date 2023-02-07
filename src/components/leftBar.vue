@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 // 获得当前路由
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { ref } from "vue";
 
 const $route = useRoute();
+const $router = useRouter();
 
 const routerList = ref([
   {
@@ -18,6 +19,11 @@ const routerList = ref([
 const matchHilight = (path: string): boolean => {
   return path === $route.path;
 };
+
+const goPath = (path: string) => {
+  event?.preventDefault();
+  $router.push(path);
+};
 </script>
 
 <template>
@@ -27,8 +33,11 @@ const matchHilight = (path: string): boolean => {
         :class="matchHilight(item.path) ? 'ul-li-hilight' : ''"
         v-for="item in routerList"
         :key="item.path"
+        @click="goPath(item.path)"
       >
-        <router-link :to="item.path">{{ item.label }}</router-link>
+        <router-link style="height: 100%; width: 100%" :to="item.path">{{
+          item.label
+        }}</router-link>
       </li>
     </ul>
   </section>
@@ -57,6 +66,7 @@ const matchHilight = (path: string): boolean => {
       border: 1px solid #e8e8e8;
       border-radius: 8px;
       width: 80%;
+      cursor: pointer;
       a {
         color: #333;
         text-decoration: none;

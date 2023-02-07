@@ -414,5 +414,6 @@ let workForm: Ref<IWorkForm> = ref({
   height: 100vh;
   overflow: auto;
   background-color: #f5f5f5;
+  padding: 16px;
 }
 </style>
