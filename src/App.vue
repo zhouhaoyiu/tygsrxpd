@@ -1,5 +1,19 @@
+<script lang="ts" setup>
+import SideBar from "./components/leftBar.vue";
+</script>
+
 <template>
-  <RouterView />
+  <div class="content">
+    <SideBar />
+    <RouterView />
+  </div>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.content {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 100%;
+}
+</style>

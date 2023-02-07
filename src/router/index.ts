@@ -5,6 +5,10 @@ const router = createRouter({
   routes: [
     {
       path: "/",
+      redirect: "/createJob",
+    },
+    {
+      path: "/createJob",
       name: "createJob",
       component: CreateJob,
     },
