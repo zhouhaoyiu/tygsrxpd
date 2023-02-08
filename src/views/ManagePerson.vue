@@ -6,7 +6,7 @@ onMounted(async () => {});
 
 <template>
   <div class="page">
-    <h1>Manage Person</h1>
+    <h1>人员管理</h1>
   </div>
 </template>
 

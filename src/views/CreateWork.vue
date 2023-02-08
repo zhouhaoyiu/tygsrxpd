@@ -279,7 +279,6 @@ let workForm: Ref<IWorkForm> = ref({
 <template>
   <div class="page">
     <div style="padding: 12px 16px; background: transparent">
-      <h2 style="padding-bottom: 8px">文字识别</h2>
       <el-input
         type="textarea"
         :autosize="false"

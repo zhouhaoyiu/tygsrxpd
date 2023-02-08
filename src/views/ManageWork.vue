@@ -27,7 +27,7 @@ let tableData = ref([]);
 
 <template>
   <div class="page">
-    <h1>Manage Job</h1>
+    <h1>工单管理</h1>
     <el-table
       height="500"
       size="small"
@@ -60,6 +60,7 @@ let tableData = ref([]);
         align="center"
         prop="workContent"
         label="反映内容"
+        width="150px"
       ></el-table-column>
       <el-table-column
         align="center"
@@ -148,11 +149,28 @@ let tableData = ref([]);
         prop="label"
         label="标签"
       ></el-table-column>
-      <el-table-column
+      <!-- <el-table-column
         align="center"
         prop="remark"
         label="备注"
-      ></el-table-column>
+      ></el-table-column> -->
+      <el-table-column label="备注" align="center">
+        <template #default="scope">
+          <el-popover
+            effect="light"
+            trigger="hover"
+            placement="top"
+            width="auto"
+          >
+            <template #default>
+              <div>{{ scope.row.remark }}</div>
+            </template>
+            <template #reference>
+              <el-tag>查看</el-tag>
+            </template>
+          </el-popover>
+        </template>
+      </el-table-column>
       <el-table-column
         align="center"
         prop="status"
