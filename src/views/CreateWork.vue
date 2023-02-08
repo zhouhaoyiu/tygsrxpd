@@ -455,9 +455,9 @@ let workForm: Ref<IWorkForm> = ref({
           </div>
         </div>
       </div>
-      <el-button style="margin-top: 8px" type="primary" @click="submitWork"
-        >提交</el-button
-      >
+      <el-button style="margin-top: 8px" type="primary" @click="submitWork">
+        提交
+      </el-button>
     </div>
   </div>
 </template>

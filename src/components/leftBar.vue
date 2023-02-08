@@ -16,6 +16,10 @@ const routerList = ref([
     path: "/manageWork",
   },
   {
+    label: "工单数据",
+    path: "/workDetailData",
+  },
+  {
     label: "工单数据可视化",
     path: "/workDataAnalysis",
   },

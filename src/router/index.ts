@@ -18,9 +18,8 @@ const router = createRouter({
       // component: ManageJob,
       component: () => import("../views/ManageWork.vue"),
     },
-    // 工单详细数据，后面加上工单id
     {
-      path: "/workDetailData/:id",
+      path: "/workDetailData",
       name: "workDetailData",
       component: () => import("../views/workDetailData.vue"),
     },

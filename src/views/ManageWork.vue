@@ -1,5 +1,8 @@
 <script lang="ts" setup>
 import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+
+const $router = useRouter();
 
 onMounted(async () => {
   console.log("%c manageWork mounted", "color: red;font-size: 20px");
@@ -8,6 +11,16 @@ onMounted(async () => {
   console.log(data);
   tableData.value = data;
 });
+
+const goWorkDetailData = (workIdentifier: string) => {
+  console.log(workIdentifier);
+  localStorage.setItem("workIdentifier", workIdentifier);
+  $router.push({
+    // path: "/workDetailData/:id",
+    path: "/workDetailData",
+    name: "workDetailData",
+  });
+};
 
 let tableData = ref([]);
 </script>
@@ -23,12 +36,16 @@ let tableData = ref([]);
       :data="tableData"
       style="max-width: 95%; font-size: 12px; text-align: center"
     >
-      <el-table-column
-        align="center"
-        prop="workIdentifier"
-        label="案件编号"
-        width="100px"
-      ></el-table-column>
+      <el-table-column align="center" label="案件编号" width="100px">
+        <template #default="scope">
+          <div
+            style="cursor: pointer; text-decoration: underline"
+            @click="goWorkDetailData(scope.row.workIdentifier)"
+          >
+            {{ scope.row.workIdentifier }}
+          </div>
+        </template>
+      </el-table-column>
       <el-table-column
         align="center"
         prop="workType"
