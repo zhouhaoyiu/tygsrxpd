@@ -12,6 +12,14 @@ const routerList = ref([
     path: "/createJob",
   },
   {
+    label: "工单管理",
+    path: "/manageJob",
+  },
+  {
+    label: "工单数据可视化",
+    path: "/jobDataAnalysis",
+  },
+  {
     label: "人员管理",
     path: "/managePerson",
   },
