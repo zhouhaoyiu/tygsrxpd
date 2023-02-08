@@ -1,6 +1,9 @@
+<!-- eslint-disable no-undef -->
 <script setup lang="ts">
 import { onMounted, ref, type Ref } from "vue";
-import { ElMessage } from "element-plus";
+// import { ElMessage } from "element-plus";
+import usePersonList from "@/stores/personList";
+const personList = usePersonList();
 interface IWorkForm {
   workIdentifier: string;
   workType: string;
@@ -20,8 +23,27 @@ interface IWorkForm {
   fileNo: string;
   label: string;
   remark: string;
+  status: string;
+  assignee: string;
 }
 
+let submitWork = async () => {
+  let res = await fetch("http://localhost:5000/createWork", {
+    method: "POST",
+    body: JSON.stringify(workForm.value),
+  });
+  let data = await res.json();
+  console.log(data);
+
+  if (data.success) {
+    // @ts-ignore
+    ElMessage.success("创建成功");
+  } else {
+    // @ts-ignore
+    ElMessage.error("创建失败");
+  }
+};
+let assigneeList: Ref<Record<string, any>[]> = ref([]);
 let workTextTemplate = ref(`
 案件编号
 CC2301310143
@@ -218,12 +240,15 @@ function workTextTemplateParser(workTextTemplate: string) {
     );
     console.timeEnd("workTextTemplateParser");
   } catch (error) {
+    // @ts-ignore
     ElMessage.error("工单模板解析失败");
     return;
   }
 }
-onMounted(() => {
-  // workTextTemplateParser(workTextTemplate.value);
+console.log(personList.getPersonList);
+onMounted(async () => {
+  assigneeList.value = personList.getPersonList;
+  workTextTemplateParser(workTextTemplate.value);
 });
 
 type TWorkText = string;
@@ -247,10 +272,12 @@ let workForm: Ref<IWorkForm> = ref({
   fileNo: "",
   label: "",
   remark: "",
+  status: "",
+  assignee: "",
 });
 </script>
 <template>
-  <div id="app">
+  <div class="page">
     <div style="padding: 12px 16px; background: transparent">
       <h2 style="padding-bottom: 8px">文字识别</h2>
       <el-input
@@ -398,21 +425,54 @@ let workForm: Ref<IWorkForm> = ref({
               placeholder="请输入备注"
             ></el-input>
           </div>
+          <div>
+            状态
+            <el-input
+              v-model="workForm.status"
+              placeholder="请输入状态"
+            ></el-input>
+          </div>
+          <div>
+            <div>指派人员</div>
+            <!-- <el-input
+              v-model="workForm.assignee"
+              placeholder="请输入指派人员"
+            ></el-input> -->
+            <el-select
+              v-model="workForm.assignee"
+              clearable
+              placeholder="请选择"
+            >
+              <el-option
+                v-for="item in assigneeList"
+                :key="item.value"
+                :label="item.personName"
+                :value="
+                  JSON.stringify({ wx: item.personWx, name: item.personName })
+                "
+              ></el-option>
+            </el-select>
+          </div>
         </div>
       </div>
-      <el-button style="margin-top: 8px" type="primary">提交</el-button>
+      <el-button style="margin-top: 8px" type="primary" @click="submitWork"
+        >提交</el-button
+      >
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-#app {
+.page {
+  width: 100%;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: row;
   height: 100vh;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
   background-color: #f5f5f5;
   padding: 16px;
 }

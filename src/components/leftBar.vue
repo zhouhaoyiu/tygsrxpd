@@ -9,15 +9,15 @@ const $router = useRouter();
 const routerList = ref([
   {
     label: "新建工单",
-    path: "/createJob",
+    path: "/createWork",
   },
   {
     label: "工单管理",
-    path: "/manageJob",
+    path: "/manageWork",
   },
   {
     label: "工单数据可视化",
-    path: "/jobDataAnalysis",
+    path: "/workDataAnalysis",
   },
   {
     label: "人员管理",
@@ -53,9 +53,9 @@ const goPath = (path: string) => {
 
 <style scoped lang="scss">
 .sideBar {
-  width: 200px;
-  max-width: 200px;
-  min-width: 200px;
+  width: 180px;
+  max-width: 180px;
+  min-width: 180px;
   height: 100vh;
   // background-color: red;
   border-right: 1px solid #e8e8e8;

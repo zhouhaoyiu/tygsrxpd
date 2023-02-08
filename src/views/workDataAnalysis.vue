@@ -1,12 +1,8 @@
-<script setup lang="ts">
-import { onMounted } from "vue";
-
-onMounted(async () => {});
-</script>
+<script lang="ts" setup></script>
 
 <template>
   <div class="page">
-    <h1>Manage Person</h1>
+    <h1>workDataAnalysis</h1>
   </div>
 </template>
 
