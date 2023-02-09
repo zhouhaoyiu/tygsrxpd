@@ -3,7 +3,6 @@ import * as echarts from "echarts";
 import { onMounted } from "vue";
 
 onMounted(async () => {
-  console.log("%c workDataAnalysis", "color: red;font-size: 20px");
   const res = await fetch("http://localhost:5000/getWorkList");
   const data = await res.json();
   console.log(data);
