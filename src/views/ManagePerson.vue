@@ -142,19 +142,25 @@ onMounted(async () => {
         style="
           display: flex;
           flex-direction: column;
-          width: 50%;
+          width: 40%;
+          margin: 0 5%;
           align-items: center;
+          justify-content: center;
+          background: white;
+          border-radius: 8px;
+          box-shadow: 1px 1px 8px 1px #eee;
         "
       >
+        <h1 style="margin-bottom: 10px">新增人员</h1>
         <el-input
           placeholder="请输入人员姓名"
           v-model="addPersonForm.personName"
-          style="width: 200px"
+          style="width: 200px; margin-bottom: 10px"
         />
         <el-input
           placeholder="请输入人员微信"
           v-model="addPersonForm.personWx"
-          style="width: 200px"
+          style="width: 200px; margin-bottom: 10px"
         />
         <el-button type="primary" @click="addPerson"> 提交 </el-button>
       </div>
@@ -165,7 +171,12 @@ onMounted(async () => {
           stripe
           border
           :data="PersonList"
-          style="font-size: 12px; text-align: center"
+          style="
+            font-size: 12px;
+            text-align: center;
+            border-radius: 8px;
+            box-shadow: 1px 1px 8px 1px #eee;
+          "
         >
           <el-table-column align="center" prop="personName" label="人员姓名">
           </el-table-column>

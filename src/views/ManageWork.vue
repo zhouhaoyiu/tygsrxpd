@@ -185,6 +185,25 @@ let tableData = ref([]);
           >{{ JSON.parse(scope.row.assignee || "{}")?.name || "未指派" }}
         </template>
       </el-table-column>
+      <!-- TODO  新增操作区域 编辑/删除 -->
+      <!-- <el-table-column align="center" label="操作" width="100px">
+        <template #default="scope">
+          <el-button
+            type="text"
+            size="mini"
+            @click="goWorkDetailData(scope.row.workIdentifier)"
+          >
+            编辑
+          </el-button>
+          <el-button
+            type="text"
+            size="mini"
+            @click="deleteWork(scope.row.workIdentifier)"
+          >
+            删除
+          </el-button>
+        </template>
+      </el-table-column> -->
     </el-table>
   </div>
 </template>
