@@ -27,7 +27,11 @@ let tableData = ref([]);
 
 <template>
   <div class="page">
-    <h1>工单管理</h1>
+    <title-com>
+      <template #title>
+        <span>工单管理</span>
+      </template>
+    </title-com>
     <el-table
       height="500"
       size="small"
@@ -188,7 +192,7 @@ let tableData = ref([]);
 <style lang="scss" scoped>
 .page {
   background-color: #f5f5f5;
-  padding: 16px;
+  padding: 10px;
   width: 100%;
   min-height: 100vh;
   overflow-y: hidden;

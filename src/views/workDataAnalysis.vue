@@ -122,7 +122,11 @@ onMounted(async () => {
 
 <template>
   <div class="page">
-    <h1>数据可视化</h1>
+    <title-com>
+      <template #title>
+        <span>数据可视化</span>
+      </template>
+    </title-com>
     <div style="width: 300px; height: 300px" class="statusCharts"></div>
     <div style="width: 400px; height: 300px" class="assigneeCharts"></div>
   </div>
@@ -131,7 +135,7 @@ onMounted(async () => {
 <style lang="scss" scoped>
 .page {
   background-color: #f5f5f5;
-  padding: 16px;
+  padding: 10px;
   width: 100%;
   min-height: 100vh;
 }

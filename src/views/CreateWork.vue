@@ -1,7 +1,6 @@
 <!-- eslint-disable no-undef -->
 <script setup lang="ts">
 import { onMounted, ref, type Ref } from "vue";
-// import { ElMessage } from "element-plus";
 import usePersonList from "@/stores/personList";
 const personList = usePersonList();
 interface IWorkForm {
