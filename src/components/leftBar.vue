@@ -54,7 +54,6 @@ const goPath = (path: string) => {
 <template>
   <section class="sideBar" v-if="$route.path !== '/login'">
     <div class="size-button">
-      <!-- 缩小/放大 -->
       <el-button type="text" @click="toggleSideBar">
         {{ barSize === "max" ? "展开" : "收起" }}
       </el-button>
@@ -72,8 +71,7 @@ const goPath = (path: string) => {
         }}</router-link>
       </li>
     </ul>
-    <!-- 退出登录 -->
-    <div class="logout">
+    <div class="logout" v-if="false">
       <el-button type="danger" @click="() => $router.push('/login')">
         退出登录
       </el-button>

@@ -31,7 +31,6 @@ onBeforeMount(async () => {
 <template>
   <div class="content">
     <SideBar />
-    <!-- {{ personList === undefined }} -->
     <RouterView v-if="!(personList === undefined)" />
   </div>
 </template>
