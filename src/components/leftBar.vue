@@ -66,9 +66,9 @@ const goPath = (path: string) => {
         :key="item.path"
         @click="goPath(item.path)"
       >
-        <router-link style="height: 100%; width: 100%" :to="item.path">{{
-          item.label
-        }}</router-link>
+        <router-link style="height: 100%; width: 100%" :to="item.path">
+          {{ item.label }}
+        </router-link>
       </li>
     </ul>
     <div class="logout" v-if="false">

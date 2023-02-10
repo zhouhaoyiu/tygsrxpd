@@ -80,6 +80,7 @@ const deleteWork = async (workIdentifier: string): Promise<void> => {
         stripe
         border
         :data="tableData"
+        scrollbar-always-on
         style="max-width: 98%; font-size: 12px; text-align: center"
       >
         <el-table-column align="center" label="案件编号" width="100px">

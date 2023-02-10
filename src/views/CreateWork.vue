@@ -3,6 +3,32 @@
 import { onMounted, ref, type Ref } from "vue";
 import usePersonList from "@/stores/personList";
 const personList = usePersonList();
+
+type TWorkText = string;
+let workText: Ref<TWorkText> = ref("");
+let workForm: Ref<IWorkForm> = ref({
+  workIdentifier: "",
+  workType: "",
+  workSource: "",
+  workContent: "",
+  contactPerson: "",
+  contactPhone: "",
+  workAddress: "",
+  householdNumber: "",
+  waterMeterNumber: "",
+  arrivalTimeLimit: "",
+  completionTimeLimit: "",
+  workArea: "",
+  waterUseNature: "",
+  workMode: "",
+  callerPhone: "",
+  fileNo: "",
+  label: "",
+  remark: "",
+  status: "",
+  assignee: "",
+  createTime: "",
+});
 interface IWorkForm {
   workIdentifier: string;
   workType: string;
@@ -26,10 +52,14 @@ interface IWorkForm {
   assignee: string;
 }
 
-let submitWork = async () => {
+let submitWork = async (): Promise<void> => {
   let res = await fetch("http://localhost:5000/createWork", {
     method: "POST",
-    body: JSON.stringify(workForm.value),
+    // body: JSON.stringify(workForm.value assign createTime) ,
+    body: JSON.stringify({
+      ...workForm.value,
+      createTime: new Date().toLocaleString(),
+    }),
   });
   let data = await res.json();
   console.log(data);
@@ -37,13 +67,37 @@ let submitWork = async () => {
   if (data.success) {
     // @ts-ignore
     ElMessage.success("创建成功");
+    // clear workForm
+    workForm.value = {
+      workIdentifier: "",
+      workType: "",
+      workSource: "",
+      workContent: "",
+      contactPerson: "",
+      contactPhone: "",
+      workAddress: "",
+      householdNumber: "",
+      waterMeterNumber: "",
+      arrivalTimeLimit: "",
+      completionTimeLimit: "",
+      workArea: "",
+      waterUseNature: "",
+      workMode: "",
+      callerPhone: "",
+      fileNo: "",
+      label: "",
+      remark: "",
+      status: "",
+      assignee: "",
+    };
+    workText.value = "";
   } else {
     // @ts-ignore
     ElMessage.error("创建失败");
   }
 };
 let assigneeList: Ref<Record<string, any>[]> = ref([]);
-let workTextTemplate = ref(`
+let defaultWorkTextTemplate = ref(`
 案件编号
 CC2301310143
 
@@ -247,32 +301,8 @@ function workTextTemplateParser(workTextTemplate: string) {
 console.log(personList.getPersonList);
 onMounted(async () => {
   assigneeList.value = personList.getPersonList;
-  workTextTemplateParser(workTextTemplate.value);
-});
-
-type TWorkText = string;
-let workText: Ref<TWorkText> = ref("");
-let workForm: Ref<IWorkForm> = ref({
-  workIdentifier: "",
-  workType: "",
-  workSource: "",
-  workContent: "",
-  contactPerson: "",
-  contactPhone: "",
-  workAddress: "",
-  householdNumber: "",
-  waterMeterNumber: "",
-  arrivalTimeLimit: "",
-  completionTimeLimit: "",
-  workArea: "",
-  waterUseNature: "",
-  workMode: "",
-  callerPhone: "",
-  fileNo: "",
-  label: "",
-  remark: "",
-  status: "",
-  assignee: "",
+  // workTextTemplateParser(defaultWorkTextTemplate.value);
+  // workText.value = defaultWorkTextTemplate.value;
 });
 </script>
 <template>
@@ -295,137 +325,163 @@ let workForm: Ref<IWorkForm> = ref({
       <h2>新建工单</h2>
       <div style="display: flex; flex-direction: row">
         <div>
-          <div>
-            工单编号
+          <div style="width: 300px">
+            <label for="workIdentifier">工单编号</label>
             <el-input
+              id="workIdentifier"
+              width="500px"
               v-model="workForm.workIdentifier"
               placeholder="请输入工单编号"
             ></el-input>
           </div>
           <div>
-            业务类型
+            <label for="workType">业务类型</label>
             <el-input
+              id="workType"
               v-model="workForm.workType"
               placeholder="请输入业务类型"
             ></el-input>
           </div>
           <div>
-            反映来源
+            <label for="workSource">反映来源</label>
             <el-input
+              id="workSource"
               v-model="workForm.workSource"
               placeholder="请输入反映来源"
             ></el-input>
           </div>
           <div>
-            反映内容
+            <label for="workContent">反映内容</label>
             <el-input
+              id="workContent"
               v-model="workForm.workContent"
               placeholder="请输入反映内容"
             ></el-input>
           </div>
           <div>
-            联系人
+            <label for="contactPerson">联系人</label>
             <el-input
+              id="contactPerson"
               v-model="workForm.contactPerson"
               placeholder="请输入联系人"
             ></el-input>
           </div>
           <div>
-            联系电话
+            <label for="contactPhone">联系电话</label>
             <el-input
+              id="contactPhone"
               v-model="workForm.contactPhone"
               placeholder="请输入联系电话"
             ></el-input>
           </div>
           <div>
-            反映地址
+            <label for="workAddress">反映地址</label>
             <el-input
+              id="workAddress"
               v-model="workForm.workAddress"
               placeholder="请输入反映地址"
             ></el-input>
           </div>
           <div>
-            户号
+            <label for="householdNumber">户号</label>
             <el-input
+              id="householdNumber"
               v-model="workForm.householdNumber"
               placeholder="请输入户号"
             ></el-input>
           </div>
           <div>
-            表身号
+            <label for="waterMeterNumber">表身号</label>
             <el-input
+              id="waterMeterNumber"
               v-model="workForm.waterMeterNumber"
               placeholder="请输入表身号"
             ></el-input>
           </div>
           <div>
-            到场时限
+            <label for="arrivalTimeLimit">到场时限</label>
             <el-input
+              id="arrivalTimeLimit"
+              type="textarea"
+              :autosize="true"
               v-model="workForm.arrivalTimeLimit"
               placeholder="请输入到场时限"
             ></el-input>
           </div>
           <div>
-            完成时限
+            <label for="completionTimeLimit">完成时限</label>
             <el-input
+              id="completionTimeLimit"
+              type="textarea"
+              :autosize="true"
               v-model="workForm.completionTimeLimit"
               placeholder="请输入完成时限"
             ></el-input>
           </div>
         </div>
         <div style="padding-left: 16px">
-          <div>
-            反映区名
+          <div style="width: 300px">
+            <label for="workArea">反映区名</label>
             <el-input
+              id="workArea"
               v-model="workForm.workArea"
               placeholder="请输入反映区名"
             ></el-input>
           </div>
           <div>
-            用水性质
+            <label for="waterUseNature">用水性质</label>
             <el-input
+              id="waterUseNature"
               v-model="workForm.waterUseNature"
               placeholder="请输入用水性质"
             ></el-input>
           </div>
           <div>
-            反映方式
+            <label for="workMode">反映方式</label>
             <el-input
+              id="workMode"
               v-model="workForm.workMode"
               placeholder="请输入反映方式"
             ></el-input>
           </div>
           <div>
-            来电电话
+            <label for="callerPhone">来电电话</label>
             <el-input
+              id="callerPhone"
               v-model="workForm.callerPhone"
               placeholder="请输入来电电话"
             ></el-input>
           </div>
           <div>
-            案卷号
+            <label for="fileNo">案卷号</label>
             <el-input
+              id="fileNo"
               v-model="workForm.fileNo"
               placeholder="请输入案卷号"
             ></el-input>
           </div>
           <div>
-            标签
+            <label for="label">标签</label>
             <el-input
+              id="label"
               v-model="workForm.label"
               placeholder="请输入标签"
             ></el-input>
           </div>
           <div>
-            备注
+            <label for="remark">备注</label>
             <el-input
+              id="remark"
+              type="textarea"
+              :autosize="true"
               v-model="workForm.remark"
               placeholder="请输入备注"
             ></el-input>
           </div>
           <div>
-            状态
+            <label for="status">状态</label>
             <el-input
+              id="status"
               v-model="workForm.status"
               placeholder="请输入状态"
             ></el-input>
