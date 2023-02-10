@@ -54,7 +54,7 @@ const goPath = (path: string) => {
 <template>
   <section class="sideBar" v-if="$route.path !== '/login'">
     <div class="size-button">
-      <el-button type="text" @click="toggleSideBar">
+      <el-button link @click="toggleSideBar">
         {{ barSize === "max" ? "展开" : "收起" }}
       </el-button>
     </div>
@@ -100,9 +100,9 @@ const goPath = (path: string) => {
   }
 
   &.sideBar-min {
-    width: 60px;
-    max-width: 60px;
-    min-width: 60px;
+    width: 55px;
+    max-width: 55px;
+    min-width: 55px;
     .leftbar-title {
       display: none;
     }
@@ -110,8 +110,9 @@ const goPath = (path: string) => {
       li {
         padding: 0;
         margin: 0;
-        border: none;
-        width: 100%;
+        // border: none;
+        width: 70%;
+        margin-top: 10px;
         a {
           display: flex;
           justify-content: center;

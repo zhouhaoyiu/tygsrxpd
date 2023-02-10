@@ -18,6 +18,7 @@ onMounted(async () => {
     document.querySelector(".statusCharts") as HTMLDivElement
   );
 
+  // 图表居中
   const option = {
     title: {
       text: "案件状态统计",
@@ -62,6 +63,10 @@ onMounted(async () => {
   statusCharts.setOption(option);
 
   // 根据assignee分类
+  const assigneeCharts = echarts.init(
+    document.querySelector(".assigneeCharts") as HTMLDivElement
+  );
+
   const assigneeList = data.map(
     (item: any) => JSON.parse(item.assignee || "{}").name || "未分配"
   );
@@ -70,10 +75,6 @@ onMounted(async () => {
   const assigneeCount = assigneeArray.map((item: any) => {
     return assigneeList.filter((assignee: any) => assignee === item).length;
   });
-
-  const assigneeCharts = echarts.init(
-    document.querySelector(".assigneeCharts") as HTMLDivElement
-  );
 
   const assigneeOption = {
     title: {
@@ -117,6 +118,55 @@ onMounted(async () => {
   };
 
   assigneeCharts.setOption(assigneeOption);
+  const newWorkCharts = echarts.init(
+    document.querySelector(".newWorkCharts") as HTMLDivElement
+  );
+
+  // 每日新增案件x轴为日期，y轴为新增案件数 x轴精确到天，根据日期由今天往前排,,显示最近15天的数据
+  // y轴为整数
+
+  const newWorkList = data
+    .map((item: any) => {
+      // 2023/2/9 11:16:45
+      const date = new Date(item.createTime);
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      return `${year}/${month}/${day}`;
+    })
+    .slice(0, 15)
+    .reverse();
+
+  const newWorkSet = new Set(newWorkList);
+  const newWorkArray = Array.from(newWorkSet);
+  const newWorkCount = newWorkArray.map((item: any) => {
+    return newWorkList.filter((newWork: any) => newWork === item).length;
+  });
+
+  const newWorkOption = {
+    title: {
+      text: "每日新增案件统计",
+      left: "center",
+    },
+    tooltip: {
+      trigger: "axis",
+    },
+    xAxis: {
+      type: "category",
+      data: newWorkArray,
+    },
+    yAxis: {
+      type: "value",
+    },
+    series: [
+      {
+        data: newWorkCount,
+        type: "line",
+      },
+    ],
+  };
+
+  newWorkCharts.setOption(newWorkOption);
 });
 </script>
 
@@ -127,14 +177,30 @@ onMounted(async () => {
         <span>数据可视化</span>
       </template>
     </title-com>
+    <div>
+      <div
+        style="
+          width: 100%;
+          height: 300px;
+          background-color: #fbfbfb99;
+          border-radius: 5px;
+          margin-bottom: 20px;
+          box-shadow: 1px 1px 8px 1px #eee;
+          padding: 4px;
+        "
+        class="newWorkCharts"
+      ></div>
+    </div>
     <div style="display: flex">
       <div
         style="
-          width: 340px;
+          width: 420px;
           height: 300px;
           background-color: #fbfbfb99;
           margin-right: 20px;
           border-radius: 5px;
+          box-shadow: 1px 1px 8px 1px #eee;
+          padding: 4px;
         "
         class="statusCharts"
       ></div>
@@ -144,6 +210,8 @@ onMounted(async () => {
           height: 300px;
           background-color: #fbfbfb99;
           border-radius: 5px;
+          box-shadow: 1px 1px 8px 1px #eee;
+          padding: 4px;
         "
         class="assigneeCharts"
       ></div>

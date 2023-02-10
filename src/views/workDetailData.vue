@@ -61,7 +61,7 @@ onMounted(async () => {
     });
     const data2 = await res2.json();
     workData.value = data2;
-    return;
+    // console.log(workData.value);
   } else {
     workIdentifier.value = localStorage.getItem("workIdentifier") || "";
     const res = await fetch("http://localhost:5000/getWorkDetail", {
@@ -76,6 +76,7 @@ onMounted(async () => {
 
     const data = await res.json();
     workData.value = data;
+    // console.log(workData.value);
   }
 });
 
@@ -121,12 +122,10 @@ watch(workIdentifier, async (newVal) => {
         size="large"
       />
     </div>
-    <el-descriptions
-      :title="workIdentifier"
-      v-if="!displayMode"
-      :column="3"
-      border
-    >
+    <div>
+      <h1>{{ workIdentifier }}</h1>
+    </div>
+    <el-descriptions v-if="!displayMode" :column="3" border>
       <template #extra>
         <el-button
           color="#2b5cab"
@@ -192,6 +191,9 @@ watch(workIdentifier, async (newVal) => {
       </el-descriptions-item>
       <el-descriptions-item align="center" label="状态">
         {{ workData[0]?.status }}
+      </el-descriptions-item>
+      <el-descriptions-item align="center" label="创建时间">
+        {{ workData[0]?.createTime }}
       </el-descriptions-item>
     </el-descriptions>
     <div v-else>
