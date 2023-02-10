@@ -127,8 +127,27 @@ onMounted(async () => {
         <span>数据可视化</span>
       </template>
     </title-com>
-    <div style="width: 300px; height: 300px" class="statusCharts"></div>
-    <div style="width: 400px; height: 300px" class="assigneeCharts"></div>
+    <div style="display: flex">
+      <div
+        style="
+          width: 340px;
+          height: 300px;
+          background-color: #fbfbfb99;
+          margin-right: 20px;
+          border-radius: 5px;
+        "
+        class="statusCharts"
+      ></div>
+      <div
+        style="
+          width: 400px;
+          height: 300px;
+          background-color: #fbfbfb99;
+          border-radius: 5px;
+        "
+        class="assigneeCharts"
+      ></div>
+    </div>
   </div>
 </template>
 

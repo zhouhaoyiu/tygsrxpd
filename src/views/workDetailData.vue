@@ -124,7 +124,6 @@ watch(workIdentifier, async (newVal) => {
     <el-descriptions
       :title="workIdentifier"
       v-if="!displayMode"
-      class="margin-top"
       :column="3"
       border
     >
@@ -137,61 +136,61 @@ watch(workIdentifier, async (newVal) => {
           编辑
         </el-button>
       </template>
-      <el-descriptions-item label="案件编号">
+      <el-descriptions-item align="center" label="案件编号">
         {{ workData[0]?.workIdentifier }}
       </el-descriptions-item>
-      <el-descriptions-item label="业务类型">
+      <el-descriptions-item align="center" label="业务类型">
         {{ workData[0]?.workType }}
       </el-descriptions-item>
-      <el-descriptions-item label="反映来源">
+      <el-descriptions-item align="center" label="反映来源">
         {{ workData[0]?.workSource }}
       </el-descriptions-item>
-      <el-descriptions-item label="反映内容">
+      <el-descriptions-item align="center" label="反映内容">
         {{ workData[0]?.workContent }}
       </el-descriptions-item>
-      <el-descriptions-item label="联系人">
+      <el-descriptions-item align="center" label="联系人">
         {{ workData[0]?.contactPerson }}
       </el-descriptions-item>
-      <el-descriptions-item label="联系电话">
+      <el-descriptions-item align="center" label="联系电话">
         {{ workData[0]?.contactPhone }}
       </el-descriptions-item>
-      <el-descriptions-item label="反映地址">
+      <el-descriptions-item align="center" label="反映地址">
         {{ workData[0]?.workAddress }}
       </el-descriptions-item>
-      <el-descriptions-item label="户号">
+      <el-descriptions-item align="center" label="户号">
         {{ workData[0]?.householdNumber }}
       </el-descriptions-item>
-      <el-descriptions-item label="表身号">
+      <el-descriptions-item align="center" label="表身号">
         {{ workData[0]?.waterMeterNumber }}
       </el-descriptions-item>
-      <el-descriptions-item label="到场时限">
+      <el-descriptions-item align="center" label="到场时限">
         {{ workData[0]?.arrivalTimeLimit }}
       </el-descriptions-item>
-      <el-descriptions-item label="完成时限">
+      <el-descriptions-item align="center" label="完成时限">
         {{ workData[0]?.completionTimeLimit }}
       </el-descriptions-item>
-      <el-descriptions-item label="反映区名">
+      <el-descriptions-item align="center" label="反映区名">
         {{ workData[0]?.workArea }}
       </el-descriptions-item>
-      <el-descriptions-item label="用水性质">
+      <el-descriptions-item align="center" label="用水性质">
         {{ workData[0]?.waterUseNature }}
       </el-descriptions-item>
-      <el-descriptions-item label="反映方式">
+      <el-descriptions-item align="center" label="反映方式">
         {{ workData[0]?.workMode }}
       </el-descriptions-item>
-      <el-descriptions-item label="来电电话">
+      <el-descriptions-item align="center" label="来电电话">
         {{ workData[0]?.callerPhone }}
       </el-descriptions-item>
-      <el-descriptions-item label="案卷号">
+      <el-descriptions-item align="center" label="案卷号">
         {{ workData[0]?.fileNo }}
       </el-descriptions-item>
-      <el-descriptions-item label="标签">
+      <el-descriptions-item align="center" label="标签">
         {{ workData[0]?.label }}
       </el-descriptions-item>
-      <el-descriptions-item label="备注">
+      <el-descriptions-item align="center" label="备注">
         {{ workData[0]?.remark }}
       </el-descriptions-item>
-      <el-descriptions-item label="状态">
+      <el-descriptions-item align="center" label="状态">
         {{ workData[0]?.status }}
       </el-descriptions-item>
     </el-descriptions>

@@ -40,6 +40,7 @@ const goPath = (path: string) => {
 
 <template>
   <section class="sideBar">
+    <div class="leftbar-title">热线工单<br />派单系统</div>
     <ul class="router-ul">
       <li
         :class="matchHilight(item.path) ? 'ul-li-hilight' : ''"
@@ -63,10 +64,19 @@ const goPath = (path: string) => {
   height: 100vh;
   // background-color: red;
   border-right: 1px solid #e8e8e8;
+  user-select: none;
+  .leftbar-title {
+    text-align: center;
+    padding: 10px 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #2b5cab;
+    border-bottom: 1px solid #e8e8e8;
+  }
   .router-ul {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin-top: 15px;
     display: flex;
     flex-direction: column;
     justify-content: center;
