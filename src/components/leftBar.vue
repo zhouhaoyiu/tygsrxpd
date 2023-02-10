@@ -32,6 +32,19 @@ const matchHilight = (path: string): boolean => {
   return path === $route.path;
 };
 
+const barSize = ref("min");
+
+const toggleSideBar = () => {
+  const sideBar = document.querySelector(".sideBar");
+  barSize.value = barSize.value === "min" ? "max" : "min";
+
+  if (sideBar?.classList.contains("sideBar-min")) {
+    sideBar.classList.remove("sideBar-min");
+  } else {
+    sideBar?.classList.add("sideBar-min");
+  }
+};
+
 const goPath = (path: string) => {
   event?.preventDefault();
   $router.push(path);
@@ -39,7 +52,13 @@ const goPath = (path: string) => {
 </script>
 
 <template>
-  <section class="sideBar">
+  <section class="sideBar" v-if="$route.path !== '/login'">
+    <div class="size-button">
+      <!-- 缩小/放大 -->
+      <el-button type="text" @click="toggleSideBar">
+        {{ barSize === "max" ? "展开" : "收起" }}
+      </el-button>
+    </div>
     <div class="leftbar-title">热线工单<br />派单系统</div>
     <ul class="router-ul">
       <li
@@ -53,6 +72,12 @@ const goPath = (path: string) => {
         }}</router-link>
       </li>
     </ul>
+    <!-- 退出登录 -->
+    <div class="logout">
+      <el-button type="danger" @click="() => $router.push('/login')">
+        退出登录
+      </el-button>
+    </div>
   </section>
 </template>
 
@@ -65,6 +90,41 @@ const goPath = (path: string) => {
   // background-color: red;
   border-right: 1px solid #e8e8e8;
   user-select: none;
+  display: flex;
+  flex-direction: column;
+
+  .size-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    border-bottom: 1px solid #e8e8e8;
+  }
+
+  &.sideBar-min {
+    width: 60px;
+    max-width: 60px;
+    min-width: 60px;
+    .leftbar-title {
+      display: none;
+    }
+    .router-ul {
+      li {
+        padding: 0;
+        margin: 0;
+        border: none;
+        width: 100%;
+        a {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100%;
+          width: 100%;
+        }
+      }
+    }
+  }
+
   .leftbar-title {
     text-align: center;
     padding: 10px 0;
@@ -100,6 +160,16 @@ const goPath = (path: string) => {
         color: white;
       }
     }
+  }
+  .logout {
+    // 退出登录
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    // 自身在父元素的底部
+    margin-top: auto;
+    margin-bottom: 20px;
   }
 }
 </style>
