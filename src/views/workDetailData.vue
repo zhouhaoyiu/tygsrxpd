@@ -42,6 +42,38 @@ const submitChangeWork = async () => {
     ElMessage.error("修改失败");
   }
 };
+//  待接单待到场待处理已完成已挂起已终止已作废
+const statusList = [
+  {
+    label: "待接单",
+    value: "待接单",
+  },
+  {
+    label: "待到场",
+    value: "待到场",
+  },
+  {
+    label: "待处理",
+    value: "待处理",
+  },
+  {
+    label: "已完成",
+    value: "已完成",
+  },
+  {
+    label: "已挂起",
+    value: "已挂起",
+  },
+  {
+    label: "已终止",
+    value: "已终止",
+  },
+  {
+    label: "已作废",
+    value: "已作废",
+  },
+];
+
 onMounted(async () => {
   const res = await fetch("http://localhost:5000/getWorkList");
   const data = await res.json();
@@ -258,7 +290,14 @@ watch(workIdentifier, async (newVal) => {
           <el-input v-model="workData[0].remark" />
         </el-descriptions-item>
         <el-descriptions-item label="状态">
-          <el-input v-model="workData[0].status" />
+          <el-select v-model="workData[0].status" placeholder="请选择">
+            <el-option
+              v-for="item in statusList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            ></el-option>
+          </el-select>
         </el-descriptions-item>
       </el-descriptions>
     </div>

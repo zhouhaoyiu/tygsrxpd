@@ -6,7 +6,8 @@ import SideBar from "./components/leftBar.vue";
 import usePersonList from "./stores/personList";
 const UsePersonList = usePersonList();
 let personList = ref(undefined) as any;
-
+let loadingTrue = ref(true);
+let ErrorInfo = ref("");
 onBeforeMount(async () => {
   // @ts-ignore
   const loadingInstance1 = ElLoading.service({
@@ -20,10 +21,15 @@ onBeforeMount(async () => {
     personList.value = data;
     console.log(data);
     UsePersonList.setPersonList(personList.value);
+    loadingTrue.value = true;
     loadingInstance1.close();
   } catch (error) {
     /* empty */
     console.log(error);
+    ErrorInfo.value = String(error);
+    loadingTrue.value = false;
+    // 变为加载失败状态
+    loadingInstance1.close();
   }
 });
 </script>
@@ -31,7 +37,13 @@ onBeforeMount(async () => {
 <template>
   <div class="content">
     <SideBar />
-    <RouterView v-if="!(personList === undefined)" />
+    <RouterView v-if="!(personList === undefined) && loadingTrue" />
+    <div class="loadingTrue" v-if="!loadingTrue">
+      <div>
+        {{ ErrorInfo }}
+      </div>
+      <div>加载失败</div>
+    </div>
   </div>
 </template>
 
@@ -41,5 +53,15 @@ onBeforeMount(async () => {
   flex-direction: row;
   width: 100%;
   height: 100%;
+  .loadingTrue {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    font-size: 48px;
+    color: red;
+  }
 }
 </style>

@@ -17,6 +17,7 @@
   text-align: center;
   border-radius: 10px;
   margin-bottom: 10px;
+  box-shadow: 0px 0px 8px 1px #e1e1e1cc;
   h1 {
     font-size: 30px;
     color: #333;

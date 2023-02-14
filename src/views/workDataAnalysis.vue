@@ -1,11 +1,17 @@
 <script lang="ts" setup>
 import * as echarts from "echarts";
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
+
+let workCount = ref(0);
+// 待处理工单数
+let waitCount = ref(0);
 
 onMounted(async () => {
   const res = await fetch("http://localhost:5000/getWorkList");
   const data = await res.json();
   console.log(data);
+  workCount.value = data.length;
+  waitCount.value = data.filter((item: any) => item.status === "处理中").length;
   // 根据status分类
   const statusList = data.map((item: any) => item.status);
   const statusSet = new Set(statusList);
@@ -122,9 +128,6 @@ onMounted(async () => {
     document.querySelector(".newWorkCharts") as HTMLDivElement
   );
 
-  // 每日新增案件x轴为日期，y轴为新增案件数 x轴精确到天，根据日期由今天往前排,,显示最近15天的数据
-  // y轴为整数
-
   const newWorkList = data
     .map((item: any) => {
       // 2023/2/9 11:16:45
@@ -178,6 +181,7 @@ onMounted(async () => {
       </template>
     </title-com>
     <div>
+      <h1>目前共有工单{{ workCount }}个，处理中工单{{ waitCount }}个</h1>
       <div
         style="
           width: 100%;

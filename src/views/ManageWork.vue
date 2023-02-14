@@ -14,6 +14,27 @@ onMounted(async () => {
   tableData.value = data;
 });
 
+// 根据状态筛选
+const filterHandler = (value: string, row: any, column: any) => {
+  const property = column["property"];
+  return row[property] === value;
+};
+
+const sortStatusHandler = (a: any, b: any) => {
+  console.log(a, b);
+
+  const statusList = [
+    "已完成",
+    "待接单",
+    "待到场",
+    "待处理",
+    "已挂起",
+    "已终止",
+    "已作废",
+  ];
+  return statusList.indexOf(a.status) - statusList.indexOf(b.status);
+};
+
 const goWorkDetailData = (workIdentifier: string): void => {
   console.log(workIdentifier);
   localStorage.setItem("workIdentifier", workIdentifier);
@@ -64,6 +85,27 @@ const deleteWork = async (workIdentifier: string): Promise<void> => {
     }
   }
 };
+// getTagColor 待接单 待到场 待处理 已完成 已挂起 已终止 已作废
+const getTagColor = (status: string): string => {
+  switch (status) {
+    case "待接单":
+      return "#f56c6c";
+    case "待到场":
+      return "#e6a23c";
+    case "待处理":
+      return "#67c23a";
+    case "已完成":
+      return "green";
+    case "已挂起":
+      return "#909399";
+    case "已终止":
+      return "#909399";
+    case "已作废":
+      return "#909399";
+    default:
+      return "#2b5cab";
+  }
+};
 </script>
 
 <template>
@@ -91,6 +133,33 @@ const deleteWork = async (workIdentifier: string): Promise<void> => {
             >
               {{ scope.row.workIdentifier }}
             </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          :filter-method="filterHandler"
+          :filters="[
+            { text: '待接单', value: '待接单' },
+            { text: '待到场', value: '待到场' },
+            { text: '待处理', value: '待处理' },
+            { text: '已完成', value: '已完成' },
+            { text: '已挂起', value: '已挂起' },
+            { text: '已终止', value: '已终止' },
+            { text: '已作废', value: '已作废' },
+          ]"
+          sortable
+          :sort-method="sortStatusHandler"
+          align="center"
+          prop="status"
+          label="状态"
+        >
+          <template #default="scope">
+            <el-tag
+              style="color: white"
+              :color="getTagColor(scope.row.status)"
+              effect="plain"
+            >
+              {{ scope.row.status }}
+            </el-tag>
           </template>
         </el-table-column>
         <el-table-column
@@ -218,11 +287,7 @@ const deleteWork = async (workIdentifier: string): Promise<void> => {
             </el-popover>
           </template>
         </el-table-column>
-        <el-table-column
-          align="center"
-          prop="status"
-          label="状态"
-        ></el-table-column>
+
         <el-table-column align="center" label="指派人员">
           <template #default="scope"
             >{{ JSON.parse(scope.row.assignee || "{}")?.name || "未指派" }}
@@ -241,6 +306,7 @@ const deleteWork = async (workIdentifier: string): Promise<void> => {
               <el-button
                 size="small"
                 type="primary"
+                plain
                 @click="goWorkDetailData(scope.row.workIdentifier)"
               >
                 编辑
@@ -248,6 +314,7 @@ const deleteWork = async (workIdentifier: string): Promise<void> => {
               <el-button
                 size="small"
                 type="danger"
+                plain
                 @click="deleteWork(scope.row.workIdentifier)"
               >
                 删除
