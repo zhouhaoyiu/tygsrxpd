@@ -125,7 +125,7 @@ const getTagColor = (status: string): string => {
         scrollbar-always-on
         style="max-width: 98%; font-size: 12px; text-align: center"
       >
-        <el-table-column align="center" label="案件编号" width="100px">
+        <el-table-column align="center" label="案件编号" width="110px">
           <template #default="scope">
             <div
               style="cursor: pointer; text-decoration: underline"
@@ -151,6 +151,7 @@ const getTagColor = (status: string): string => {
           align="center"
           prop="status"
           label="状态"
+          width="90px"
         >
           <template #default="scope">
             <el-tag

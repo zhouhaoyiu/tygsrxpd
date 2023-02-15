@@ -10,6 +10,7 @@
 
 <style lang="scss" scoped>
 .title {
+  user-select: none;
   height: 60px;
   line-height: 60px;
   // 比背景色稍深一点
