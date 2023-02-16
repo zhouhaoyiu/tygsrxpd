@@ -45,6 +45,7 @@ onBeforeMount(async () => {
       <div>加载失败</div>
     </div>
   </div>
+  <!-- <footer>powered by <a href="www.github.com/zhouhaoyiu">zhouhaoyiu</a></footer> -->
 </template>
 
 <style scoped lang="scss">
