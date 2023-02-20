@@ -71,6 +71,12 @@ const deletePerson = async (personId: string) => {
 };
 
 const addPerson = async () => {
+  // 检查addPersonForm是否为空
+  if (!addPersonForm.value.personName || !addPersonForm.value.personWx) {
+    // @ts-ignore
+    ElMessage.error("请填写完整信息");
+    return;
+  }
   const result = await fetch("http://localhost:5000/addPerson", {
     method: "POST",
     headers: {
@@ -160,7 +166,7 @@ onMounted(async () => {
         <el-input
           placeholder="请输入人员微信"
           v-model="addPersonForm.personWx"
-          style="width: 200px; margin-bottom: 10px"
+          style="width: 200px; margin-bottom: 20px"
         />
         <el-button type="primary" @click="addPerson"> 提交 </el-button>
       </div>
@@ -189,7 +195,7 @@ onMounted(async () => {
                 type="primary"
                 size="small"
                 auto-insert-space
-                @click="editPerson(scope.row.personId)"
+                @click="($event: Event) => editPerson(scope.row.personId)"
               >
                 编辑
               </el-button>
@@ -197,7 +203,7 @@ onMounted(async () => {
                 type="danger"
                 size="small"
                 auto-insert-space
-                @click="deletePerson(scope.row.personId)"
+                @click="($event: Event)=>deletePerson(scope.row.personId)"
               >
                 删除
               </el-button>
@@ -217,8 +223,13 @@ onMounted(async () => {
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="personEditDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitPersonInfo()">
+          <el-button @click="($event: Event) =>personEditDialogVisible = false"
+            >取消</el-button
+          >
+          <el-button
+            type="primary"
+            @click="($event: Event) => submitPersonInfo()"
+          >
             确定
           </el-button>
         </span>

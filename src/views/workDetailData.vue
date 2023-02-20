@@ -1,3 +1,4 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <!-- eslint-disable no-undef -->
 <script lang="ts" setup>
 import { onMounted, ref, watch, type Ref } from "vue";
@@ -109,6 +110,13 @@ onMounted(async () => {
     const data = await res.json();
     workData.value = data;
     // console.log(workData.value);
+  }
+});
+
+//如果displayMode由true变为false，即编辑状态变为查看状态，就提交修改
+watch(displayMode, async (newVal) => {
+  if (!newVal) {
+    submitChangeWork();
   }
 });
 
@@ -231,9 +239,13 @@ watch(workIdentifier, async (newVal) => {
     <div v-else>
       <el-descriptions :column="3" border>
         <template #extra>
-          <el-button color="#2b5cab" @click="submitChangeWork" type="primary"
-            >保存</el-button
+          <el-button
+            color="#2b5cab"
+            @click="() => (displayMode = false)"
+            type="primary"
           >
+            保存
+          </el-button>
         </template>
         <el-descriptions-item label="案件编号">
           {{ workData[0]?.workIdentifier }}
