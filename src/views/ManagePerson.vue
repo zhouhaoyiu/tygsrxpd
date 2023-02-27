@@ -10,7 +10,7 @@ type TPerson = {
 };
 
 const { personList } = usePersonList();
-let PersonList = ref([]) as any;
+let PersonList = ref([]) as Record<string, any>;
 let personEditDialogVisible = ref(false) as Ref<boolean>;
 let personInfoForm = ref({
   personId: "",
@@ -22,6 +22,7 @@ let addPersonForm = ref({
   personName: "",
   personWx: "",
 }) as Ref<TPerson>;
+
 const editPerson = (personId: string) => {
   console.log(personId);
   personEditDialogVisible.value = true;
