@@ -22,10 +22,7 @@ declare module '@vue/runtime-core' {
     ElSwitch: typeof import('element-plus/es')['ElSwitch']
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
-    ElTableV1: typeof import("element-plus/es")["ElTableV1"]
-    ElTableV2: typeof import("element-plus/es")["ElTableV2"]
     ElTag: typeof import('element-plus/es')['ElTag']
-    'ElTag\u3011': typeof import("element-plus/es")["ElTag\u3011"]
     IconCommunity: typeof import('./src/components/icons/IconCommunity.vue')['default']
     IconDocumentation: typeof import('./src/components/icons/IconDocumentation.vue')['default']
     IconEcosystem: typeof import('./src/components/icons/IconEcosystem.vue')['default']
@@ -34,7 +31,6 @@ declare module '@vue/runtime-core' {
     LeftBar: typeof import('./src/components/leftBar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    Title: typeof import("./src/components/title.vue")["default"]
     TitleCom: typeof import('./src/components/titleCom.vue')['default']
   }
 }
