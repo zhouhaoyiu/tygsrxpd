@@ -14,7 +14,7 @@
   "dependencies": {
     "echarts": "^5.4.2",
     "element-plus": "^2.3.2",
-    "pinia": "^2.0.33",
+    "pinia": "^2.0.34",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6"
   },
