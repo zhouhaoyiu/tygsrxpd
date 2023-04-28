@@ -129,9 +129,9 @@ const getTagColor = (status: string): string => {
           <template #default="scope">
             <div
               style="cursor: pointer; text-decoration: underline"
-              @click="goWorkDetailData(scope.row.workIdentifier)"
+              @click="goWorkDetailData((scope as any).row.workIdentifier)"
             >
-              {{ scope.row.workIdentifier }}
+              {{ (scope as any).workIdentifier }}
             </div>
           </template>
         </el-table-column>
@@ -156,10 +156,10 @@ const getTagColor = (status: string): string => {
           <template #default="scope">
             <el-tag
               style="color: white"
-              :color="getTagColor(scope.row.status)"
+              :color="getTagColor((scope as any).status)"
               effect="plain"
             >
-              {{ scope.row.status }}
+              {{ (scope as any).status }}
             </el-tag>
           </template>
         </el-table-column>
@@ -205,7 +205,7 @@ const getTagColor = (status: string): string => {
               width="auto"
             >
               <template #default>
-                <div>{{ scope.row.workAddress }}</div>
+                <div>{{ (scope as any).workAddress }}</div>
               </template>
               <template #reference>
                 <el-tag>查看</el-tag>
@@ -280,7 +280,7 @@ const getTagColor = (status: string): string => {
               width="auto"
             >
               <template #default>
-                <div>{{ scope.row.remark }}</div>
+                <div>{{ (scope as any).remark }}</div>
               </template>
               <template #reference>
                 <el-tag>查看</el-tag>
@@ -291,7 +291,7 @@ const getTagColor = (status: string): string => {
 
         <el-table-column align="center" label="指派人员">
           <template #default="scope"
-            >{{ JSON.parse(scope.row.assignee || "{}")?.name || "未指派" }}
+            >{{ JSON.parse((scope as any).assignee || "{}")?.name || "未指派" }}
           </template>
         </el-table-column>
         <!-- TODO  新增操作区域 编辑/删除 -->
@@ -308,7 +308,7 @@ const getTagColor = (status: string): string => {
                 size="small"
                 type="primary"
                 plain
-                @click="goWorkDetailData(scope.row.workIdentifier)"
+                @click="goWorkDetailData((scope as any).workIdentifier)"
               >
                 编辑
               </el-button>
@@ -316,7 +316,7 @@ const getTagColor = (status: string): string => {
                 size="small"
                 type="danger"
                 plain
-                @click="deleteWork(scope.row.workIdentifier)"
+                @click="deleteWork((scope as any).workIdentifier)"
               >
                 删除
               </el-button>
