@@ -37,13 +37,13 @@ onBeforeMount(async () => {
 <template>
   <div class="content">
     <SideBar />
-    <RouterView v-if="!(personList === undefined) && loadingTrue" />
-    <div class="loadingTrue" v-if="!loadingTrue">
-      <div>
+    <RouterView />
+    <!-- <div class="loadingTrue"> -->
+      <!-- <div>
         {{ ErrorInfo }}
       </div>
       <div>加载失败</div>
-    </div>
+    </div> -->
   </div>
   <!-- <footer>powered by <a href="www.github.com/zhouhaoyiu">zhouhaoyiu</a></footer> -->
 </template>
