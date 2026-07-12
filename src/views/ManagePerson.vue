@@ -2,33 +2,26 @@
 <script setup lang="ts">
 import usePersonList from "@/stores/personList";
 import { onMounted, ref, type Ref } from "vue";
-
-type TPerson = {
-  personId: string;
-  personName: string;
-  personWx: string;
-};
+import type { Person } from "@/types/domain";
 
 const { personList } = usePersonList();
-let PersonList = ref([]) as Record<string, any>;
+let PersonList = ref<Person[]>([]);
 let personEditDialogVisible = ref(false) as Ref<boolean>;
 let personInfoForm = ref({
   personId: "",
   personName: "",
   personWx: "",
-}) as Ref<TPerson>;
+}) as Ref<Person>;
 let addPersonForm = ref({
   personId: "",
   personName: "",
   personWx: "",
-}) as Ref<TPerson>;
+}) as Ref<Person>;
 
 const editPerson = (personId: string) => {
   console.log(personId);
   personEditDialogVisible.value = true;
-  const person = (personList as unknown as TPerson[]).find(
-    (item: TPerson) => item.personId === personId
-  ) || {
+  const person = personList.find((item) => item.personId === personId) || {
     personId: "",
     personName: "",
     personWx: "",
@@ -59,7 +52,7 @@ const deletePerson = async (personId: string) => {
       // @ts-ignore
       ElMessage.success("删除成功");
       PersonList.value = PersonList.value.filter(
-        (item: TPerson) => item.personId !== personId
+        (item: Person) => item.personId !== personId,
       );
     } else {
       // @ts-ignore
@@ -204,7 +197,7 @@ onMounted(async () => {
                 type="danger"
                 size="small"
                 auto-insert-space
-                @click="($event: Event)=>deletePerson(scope.row.personId)"
+                @click="($event: Event) => deletePerson(scope.row.personId)"
               >
                 删除
               </el-button>
@@ -224,7 +217,8 @@ onMounted(async () => {
       </el-form>
       <template #footer>
         <span class="dialog-footer">
-          <el-button @click="($event: Event) =>personEditDialogVisible = false"
+          <el-button
+            @click="($event: Event) => (personEditDialogVisible = false)"
             >取消</el-button
           >
           <el-button

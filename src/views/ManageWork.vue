@@ -2,25 +2,31 @@
 <script lang="ts" setup>
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import type { TableColumnCtx } from "element-plus";
+import { getAssigneeName, type WorkRecord } from "@/types/domain";
 
 const $router = useRouter();
-let tableData = ref([]);
+let tableData = ref<WorkRecord[]>([]);
 
 onMounted(async () => {
   console.log("%c manageWork mounted", "color: red;font-size: 20px");
   const res = await fetch("http://localhost:5000/getWorkList");
-  const data = await res.json();
+  const data = (await res.json()) as WorkRecord[];
   console.log(data);
   tableData.value = data;
 });
 
 // 根据状态筛选
-const filterHandler = (value: string, row: any, column: any) => {
-  const property = column["property"];
+const filterHandler = (
+  value: unknown,
+  row: WorkRecord,
+  column: TableColumnCtx<WorkRecord>,
+) => {
+  const property = column.property as keyof WorkRecord;
   return row[property] === value;
 };
 
-const sortStatusHandler = (a: any, b: any) => {
+const sortStatusHandler = (a: WorkRecord, b: WorkRecord) => {
   console.log(a, b);
 
   const statusList = [
@@ -39,8 +45,6 @@ const goWorkDetailData = (workIdentifier: string): void => {
   console.log(workIdentifier);
   localStorage.setItem("workIdentifier", workIdentifier);
   $router.push({
-    // path: "/workDetailData/:id",
-    path: "/workDetailData",
     name: "workDetailData",
   });
 };
@@ -73,7 +77,7 @@ const deleteWork = async (workIdentifier: string): Promise<void> => {
       // @ts-ignore
       ElMessage.success("删除成功");
       const res = await fetch("http://localhost:5000/getWorkList");
-      const data = await res.json();
+      const data = (await res.json()) as WorkRecord[];
       tableData.value = data;
     } else {
       // @ts-ignore
@@ -129,9 +133,9 @@ const getTagColor = (status: string): string => {
           <template #default="scope">
             <div
               style="cursor: pointer; text-decoration: underline"
-              @click="goWorkDetailData((scope as any).row.workIdentifier)"
+              @click="goWorkDetailData(scope.row.workIdentifier)"
             >
-              {{ (scope as any).workIdentifier }}
+              {{ scope.row.workIdentifier }}
             </div>
           </template>
         </el-table-column>
@@ -156,10 +160,10 @@ const getTagColor = (status: string): string => {
           <template #default="scope">
             <el-tag
               style="color: white"
-              :color="getTagColor((scope as any).status)"
+              :color="getTagColor(scope.row.status)"
               effect="plain"
             >
-              {{ (scope as any).status }}
+              {{ scope.row.status }}
             </el-tag>
           </template>
         </el-table-column>
@@ -205,7 +209,7 @@ const getTagColor = (status: string): string => {
               width="auto"
             >
               <template #default>
-                <div>{{ (scope as any).workAddress }}</div>
+                <div>{{ scope.row.workAddress }}</div>
               </template>
               <template #reference>
                 <el-tag>查看</el-tag>
@@ -280,7 +284,7 @@ const getTagColor = (status: string): string => {
               width="auto"
             >
               <template #default>
-                <div>{{ (scope as any).remark }}</div>
+                <div>{{ scope.row.remark }}</div>
               </template>
               <template #reference>
                 <el-tag>查看</el-tag>
@@ -291,7 +295,7 @@ const getTagColor = (status: string): string => {
 
         <el-table-column align="center" label="指派人员">
           <template #default="scope"
-            >{{ JSON.parse((scope as any).assignee || "{}")?.name || "未指派" }}
+            >{{ getAssigneeName(scope.row.assignee) }}
           </template>
         </el-table-column>
         <!-- TODO  新增操作区域 编辑/删除 -->
@@ -308,7 +312,7 @@ const getTagColor = (status: string): string => {
                 size="small"
                 type="primary"
                 plain
-                @click="goWorkDetailData((scope as any).workIdentifier)"
+                @click="goWorkDetailData(scope.row.workIdentifier)"
               >
                 编辑
               </el-button>
@@ -316,7 +320,7 @@ const getTagColor = (status: string): string => {
                 size="small"
                 type="danger"
                 plain
-                @click="deleteWork((scope as any).workIdentifier)"
+                @click="deleteWork(scope.row.workIdentifier)"
               >
                 删除
               </el-button>

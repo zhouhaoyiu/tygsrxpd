@@ -2,6 +2,7 @@
 // echarts
 import * as echarts from "echarts";
 import { onMounted, ref } from "vue";
+import { getAssigneeName, type WorkRecord } from "@/types/domain";
 
 let workCount = ref(0);
 // 待处理工单数
@@ -9,20 +10,20 @@ let waitCount = ref(0);
 
 onMounted(async () => {
   const res = await fetch("http://localhost:5000/getWorkList");
-  const data = await res.json();
+  const data = (await res.json()) as WorkRecord[];
   console.log(data);
   workCount.value = data.length;
-  waitCount.value = data.filter((item: any) => item.status === "处理中").length;
+  waitCount.value = data.filter((item) => item.status === "处理中").length;
   // 根据status分类
-  const statusList = data.map((item: any) => item.status);
+  const statusList = data.map((item) => item.status);
   const statusSet = new Set(statusList);
   const statusArray = Array.from(statusSet);
-  const statusCount = statusArray.map((item: any) => {
-    return statusList.filter((status: any) => status === item).length;
+  const statusCount = statusArray.map((item) => {
+    return statusList.filter((status) => status === item).length;
   });
 
   const statusCharts = echarts.init(
-    document.querySelector(".statusCharts") as HTMLDivElement
+    document.querySelector(".statusCharts") as HTMLDivElement,
   );
 
   // 图表居中
@@ -50,7 +51,7 @@ onMounted(async () => {
         name: "案件状态",
         type: "pie",
         radius: "50%",
-        data: statusArray.map((item: any, index: number) => {
+        data: statusArray.map((item, index) => {
           return {
             name: item,
             value: statusCount[index],
@@ -71,16 +72,14 @@ onMounted(async () => {
 
   // 根据assignee分类
   const assigneeCharts = echarts.init(
-    document.querySelector(".assigneeCharts") as HTMLDivElement
+    document.querySelector(".assigneeCharts") as HTMLDivElement,
   );
 
-  const assigneeList = data.map(
-    (item: any) => JSON.parse(item.assignee || "{}").name || "未分配"
-  );
+  const assigneeList = data.map((item) => getAssigneeName(item.assignee));
   const assigneeSet = new Set(assigneeList);
   const assigneeArray = Array.from(assigneeSet);
-  const assigneeCount = assigneeArray.map((item: any) => {
-    return assigneeList.filter((assignee: any) => assignee === item).length;
+  const assigneeCount = assigneeArray.map((item) => {
+    return assigneeList.filter((assignee) => assignee === item).length;
   });
 
   const assigneeOption = {
@@ -107,7 +106,7 @@ onMounted(async () => {
         name: "案件办理人",
         type: "pie",
         radius: "50%",
-        data: assigneeArray.map((item: any, index: number) => {
+        data: assigneeArray.map((item, index) => {
           return {
             name: item,
             value: assigneeCount[index],
@@ -126,11 +125,11 @@ onMounted(async () => {
 
   assigneeCharts.setOption(assigneeOption);
   const newWorkCharts = echarts.init(
-    document.querySelector(".newWorkCharts") as HTMLDivElement
+    document.querySelector(".newWorkCharts") as HTMLDivElement,
   );
 
   const newWorkList = data
-    .map((item: any) => {
+    .map((item) => {
       // 2023/2/9 11:16:45
       const date = new Date(item.createTime);
       const year = date.getFullYear();
@@ -143,8 +142,8 @@ onMounted(async () => {
 
   const newWorkSet = new Set(newWorkList);
   const newWorkArray = Array.from(newWorkSet);
-  const newWorkCount = newWorkArray.map((item: any) => {
-    return newWorkList.filter((newWork: any) => newWork === item).length;
+  const newWorkCount = newWorkArray.map((item) => {
+    return newWorkList.filter((newWork) => newWork === item).length;
   });
 
   const newWorkOption = {

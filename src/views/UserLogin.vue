@@ -5,14 +5,30 @@ import { useRouter } from "vue-router";
 
 const $router = useRouter();
 
-let userLogin = ref({
+interface LoginForm {
+  username: string;
+  password: string;
+}
+
+interface LoginResponse {
+  success: boolean;
+  token?: string;
+}
+
+interface LoginRule {
+  required: boolean;
+  message: string;
+  trigger: string;
+}
+
+let userLogin = ref<LoginForm>({
   username: "",
   password: "",
-}) as any;
-let rules = ref({
+});
+let rules = ref<Record<keyof LoginForm, LoginRule[]>>({
   username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
   password: [{ required: true, message: "请输入密码", trigger: "blur" }],
-}) as any;
+});
 
 const submitLogin = async () => {
   try {
@@ -26,8 +42,8 @@ const submitLogin = async () => {
         password: userLogin.value.password,
       }),
     });
-    const data = await res.json();
-    if (data.success) {
+    const data = (await res.json()) as LoginResponse;
+    if (data.success && data.token) {
       localStorage.setItem("token", data.token);
       $router.push("/workList");
       // @ts-ignore
@@ -36,7 +52,7 @@ const submitLogin = async () => {
       // @ts-ignore
       ElMessage.error("登录失败");
     }
-  } catch (err) {
+  } catch {
     // @ts-ignore
     ElMessage.error("登录失败");
   }

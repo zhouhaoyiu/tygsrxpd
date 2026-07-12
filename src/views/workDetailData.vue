@@ -2,10 +2,11 @@
 <!-- eslint-disable no-undef -->
 <script lang="ts" setup>
 import { onMounted, ref, watch, type Ref } from "vue";
+import type { WorkRecord } from "@/types/domain";
 
-let workData = ref([]) as any;
+let workData = ref<WorkRecord[]>([]);
 let selectDisplay = ref(false) as Ref<boolean>;
-let selectList = ref([]) as any;
+let selectList = ref<WorkRecord[]>([]);
 let workIdentifier = ref("") as Ref<string>;
 let displayMode = ref(false) as Ref<boolean>;
 
@@ -34,7 +35,7 @@ const submitChangeWork = async () => {
         workIdentifier: workIdentifier.value,
       }),
     });
-    const data = await res.json();
+    const data = (await res.json()) as WorkRecord[];
     workData.value = data;
     // @ts-ignore
     ElMessage.success("修改成功");
@@ -77,7 +78,7 @@ const statusList = [
 
 onMounted(async () => {
   const res = await fetch("http://localhost:5000/getWorkList");
-  const data = await res.json();
+  const data = (await res.json()) as WorkRecord[];
   selectList.value = data;
   if (!localStorage.getItem("workIdentifier")) {
     selectDisplay.value = true;
@@ -92,7 +93,7 @@ onMounted(async () => {
         workIdentifier: WorkIdentifier,
       }),
     });
-    const data2 = await res2.json();
+    const data2 = (await res2.json()) as WorkRecord[];
     workData.value = data2;
     // console.log(workData.value);
   } else {
@@ -107,7 +108,7 @@ onMounted(async () => {
       }),
     });
 
-    const data = await res.json();
+    const data = (await res.json()) as WorkRecord[];
     workData.value = data;
     // console.log(workData.value);
   }
@@ -131,7 +132,7 @@ watch(workIdentifier, async (newVal) => {
       workIdentifier: newVal,
     }),
   });
-  const data = await res.json();
+  const data = (await res.json()) as WorkRecord[];
   workData.value = data;
   localStorage.setItem("workIdentifier", newVal);
 });

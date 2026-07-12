@@ -4,8 +4,9 @@
 import { onBeforeMount, ref } from "vue";
 import SideBar from "./components/leftBar.vue";
 import usePersonList from "./stores/personList";
+import type { Person } from "./types/domain";
 const UsePersonList = usePersonList();
-let personList = ref(undefined) as any;
+let personList = ref<Person[]>([]);
 let loadingTrue = ref(true);
 let ErrorInfo = ref("");
 onBeforeMount(async () => {
@@ -17,7 +18,7 @@ onBeforeMount(async () => {
   try {
     console.log("mounted");
     const res = await fetch("http://localhost:5000/getPersonList");
-    const data = await res.json();
+    const data = (await res.json()) as Person[];
     personList.value = data;
     console.log(data);
     UsePersonList.setPersonList(personList.value);
@@ -39,7 +40,7 @@ onBeforeMount(async () => {
     <SideBar />
     <RouterView />
     <!-- <div class="loadingTrue"> -->
-      <!-- <div>
+    <!-- <div>
         {{ ErrorInfo }}
       </div>
       <div>加载失败</div>

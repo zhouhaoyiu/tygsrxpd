@@ -2,11 +2,12 @@
 <script setup lang="ts">
 import { onMounted, ref, type Ref } from "vue";
 import usePersonList from "@/stores/personList";
+import type { Person, WorkRecord } from "@/types/domain";
 const personList = usePersonList();
 
 type TWorkText = string;
 let workText: Ref<TWorkText> = ref("");
-let workForm: Ref<IWorkForm> = ref({
+let workForm = ref<WorkRecord>({
   workIdentifier: "",
   workType: "",
   workSource: "",
@@ -29,28 +30,6 @@ let workForm: Ref<IWorkForm> = ref({
   assignee: "",
   createTime: "",
 });
-interface IWorkForm {
-  workIdentifier: string;
-  workType: string;
-  workSource: string;
-  workContent: string;
-  contactPerson: string;
-  contactPhone: string;
-  workAddress: string;
-  householdNumber: string;
-  waterMeterNumber: string;
-  arrivalTimeLimit: string;
-  completionTimeLimit: string;
-  workArea: string;
-  waterUseNature: string;
-  workMode: string;
-  callerPhone: string;
-  fileNo: string;
-  label: string;
-  remark: string;
-  status: string;
-  assignee: string;
-}
 //  待接单待到场待处理已完成已挂起已终止已作废
 const statusList = [
   {
@@ -125,6 +104,7 @@ let submitWork = async (): Promise<void> => {
       remark: "",
       status: "",
       assignee: "",
+      createTime: "",
     };
     workText.value = "";
   } else {
@@ -132,7 +112,7 @@ let submitWork = async (): Promise<void> => {
     ElMessage.error("创建失败");
   }
 };
-let assigneeList: Ref<Record<string, any>[]> = ref([]);
+let assigneeList = ref<Person[]>([]);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 let defaultWorkTextTemplate = ref(`
@@ -369,7 +349,7 @@ onMounted(async () => {
           type="textarea"
           :autosize="false"
           clearable
-          rows="10"
+          :rows="10"
           v-model="workText"
           placeholder="请输入工单内容"
           style="padding-bottom: 8px"
@@ -574,7 +554,7 @@ onMounted(async () => {
               >
                 <el-option
                   v-for="item in assigneeList"
-                  :key="item.value"
+                  :key="item.personId"
                   :label="item.personName"
                   :value="
                     JSON.stringify({ wx: item.personWx, name: item.personName })
