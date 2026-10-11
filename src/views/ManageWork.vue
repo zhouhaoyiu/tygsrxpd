@@ -1,343 +1,196 @@
-<!-- eslint-disable no-undef -->
-<script lang="ts" setup>
-import { onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
-import type { TableColumnCtx } from "element-plus";
+<script setup lang="ts">
+import { computed, onMounted, ref } from "vue";
+import { api } from "@/api";
+import { transitions, overdue } from "@/workflow";
 import { getAssigneeName, type WorkRecord } from "@/types/domain";
-
-const $router = useRouter();
-let tableData = ref<WorkRecord[]>([]);
-
-onMounted(async () => {
-  console.log("%c manageWork mounted", "color: red;font-size: 20px");
-  const res = await fetch("http://localhost:5000/getWorkList");
-  const data = (await res.json()) as WorkRecord[];
-  console.log(data);
-  tableData.value = data;
-});
-
-// 根据状态筛选
-const filterHandler = (
-  value: unknown,
-  row: WorkRecord,
-  column: TableColumnCtx<WorkRecord>,
-) => {
-  const property = column.property as keyof WorkRecord;
-  return row[property] === value;
-};
-
-const sortStatusHandler = (a: WorkRecord, b: WorkRecord) => {
-  console.log(a, b);
-
-  const statusList = [
-    "已完成",
-    "待接单",
-    "待到场",
-    "待处理",
-    "已挂起",
-    "已终止",
-    "已作废",
-  ];
-  return statusList.indexOf(a.status) - statusList.indexOf(b.status);
-};
-
-const goWorkDetailData = (workIdentifier: string): void => {
-  console.log(workIdentifier);
-  localStorage.setItem("workIdentifier", workIdentifier);
-  $router.push({
-    name: "workDetailData",
-  });
-};
-
-const deleteWork = async (workIdentifier: string): Promise<void> => {
+import { RefreshCw, Plus, ArrowUpRight, Archive } from "@lucide/vue";
+const items = ref<WorkRecord[]>([]);
+const query = ref("");
+const status = ref("");
+const onlyLate = ref(false);
+const loading = ref(false);
+const error = ref("");
+const page = ref(1);
+const role = sessionStorage.getItem("dispatchRole");
+const filtered = computed(() =>
+  items.value.filter(
+    (w) =>
+      (!status.value || w.status === status.value) &&
+      (!onlyLate.value || overdue(w)) &&
+      [
+        w.workIdentifier,
+        w.workAddress,
+        w.workContent,
+        w.contactPerson,
+        getAssigneeName(w.assignee),
+      ]
+        .join(" ")
+        .includes(query.value.trim()),
+  ),
+);
+const pages = computed(() =>
+  Math.max(1, Math.ceil(filtered.value.length / 20)),
+);
+const current = computed(() => Math.min(page.value, pages.value));
+const rows = computed(() =>
+  filtered.value.slice((current.value - 1) * 20, current.value * 20),
+);
+async function load() {
+  loading.value = true;
+  error.value = "";
   try {
-    // @ts-ignore
-    const confirmDelete = await ElMessageBox.confirm("是否删除该工单", "提示", {
-      confirmButtonText: "确定",
-      cancelButtonText: "取消",
-      type: "warning",
-    });
-
-    if (confirmDelete === "cancel") {
-      return;
-    }
-
-    console.log(workIdentifier);
-    const res = await fetch("http://localhost:5000/deleteWork", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        workIdentifier: workIdentifier,
-      }),
-    });
-    const data = await res.json();
-    if (data.success) {
-      // @ts-ignore
-      ElMessage.success("删除成功");
-      const res = await fetch("http://localhost:5000/getWorkList");
-      const data = (await res.json()) as WorkRecord[];
-      tableData.value = data;
-    } else {
-      // @ts-ignore
-      ElMessage.error("删除失败");
-    }
-  } catch (error) {
-    if (error === "cancel") {
-      return;
-    }
+    items.value = await api<WorkRecord[]>("/getWorkList");
+  } catch (e) {
+    error.value = (e as Error).message;
+  } finally {
+    loading.value = false;
   }
-};
-// getTagColor 待接单 待到场 待处理 已完成 已挂起 已终止 已作废
-const getTagColor = (status: string): string => {
-  switch (status) {
-    case "待接单":
-      return "#f56c6c";
-    case "待到场":
-      return "#e6a23c";
-    case "待处理":
-      return "#67c23a";
-    case "已完成":
-      return "green";
-    case "已挂起":
-      return "#909399";
-    case "已终止":
-      return "#909399";
-    case "已作废":
-      return "#909399";
-    default:
-      return "#2b5cab";
-  }
-};
-</script>
-
-<template>
-  <div class="page">
-    <title-com>
-      <template #title>
-        <span>工单管理</span>
-      </template>
-    </title-com>
-    <div style="height: 90%; width: 100%">
-      <el-table
-        :header-cell-style="{ background: '#2b5cab08', color: '#2b5cab' }"
-        height="100%"
-        stripe
-        border
-        :data="tableData"
-        scrollbar-always-on
-        style="max-width: 98%; font-size: 12px; text-align: center"
-      >
-        <el-table-column align="center" label="案件编号" width="110px">
-          <template #default="scope">
-            <div
-              style="cursor: pointer; text-decoration: underline"
-              @click="goWorkDetailData(scope.row.workIdentifier)"
-            >
-              {{ scope.row.workIdentifier }}
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column
-          :filter-method="filterHandler"
-          :filters="[
-            { text: '待接单', value: '待接单' },
-            { text: '待到场', value: '待到场' },
-            { text: '待处理', value: '待处理' },
-            { text: '已完成', value: '已完成' },
-            { text: '已挂起', value: '已挂起' },
-            { text: '已终止', value: '已终止' },
-            { text: '已作废', value: '已作废' },
-          ]"
-          sortable
-          :sort-method="sortStatusHandler"
-          align="center"
-          prop="status"
-          label="状态"
-          width="90px"
-        >
-          <template #default="scope">
-            <el-tag
-              style="color: white"
-              :color="getTagColor(scope.row.status)"
-              effect="plain"
-            >
-              {{ scope.row.status }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column
-          align="center"
-          prop="workType"
-          label="业务类型"
-        ></el-table-column>
-        <el-table-column
-          align="center"
-          prop="workSource"
-          label="反映来源"
-        ></el-table-column>
-        <el-table-column
-          align="center"
-          prop="workContent"
-          label="反映内容"
-          width="150px"
-        ></el-table-column>
-        <el-table-column
-          align="center"
-          prop="contactPerson"
-          label="联系人"
-        ></el-table-column>
-        <el-table-column
-          align="center"
-          prop="contactPhone"
-          label="联系电话"
-          width="100"
-        ></el-table-column>
-        <!-- <el-table-column
-          align="center"
-          prop="workAddress"
-          label="反映地址"
-          width="100"
-        ></el-table-column> -->
-        <el-table-column label="反映地址" align="center">
-          <template #default="scope">
-            <el-popover
-              effect="light"
-              trigger="hover"
-              placement="top"
-              width="auto"
-            >
-              <template #default>
-                <div>{{ scope.row.workAddress }}</div>
-              </template>
-              <template #reference>
-                <el-tag>查看</el-tag>
-              </template>
-            </el-popover>
-          </template>
-        </el-table-column>
-        <el-table-column
-          align="center"
-          prop="householdNumber"
-          label="户号"
-        ></el-table-column>
-        <el-table-column
-          align="center"
-          prop="waterMeterNumber"
-          label="表身号"
-        ></el-table-column>
-        <el-table-column
-          align="center"
-          prop="arrivalTimeLimit"
-          label="到场时限"
-          width="180px"
-        ></el-table-column>
-        <el-table-column
-          align="center"
-          prop="completionTimeLimit"
-          label="完成时限"
-          width="180px"
-        ></el-table-column>
-        <el-table-column
-          align="center"
-          prop="workArea"
-          label="反映区名"
-        ></el-table-column>
-        <el-table-column
-          align="center"
-          prop="waterUseNature"
-          label="用水性质"
-        ></el-table-column>
-        <el-table-column
-          align="center"
-          prop="workMode"
-          label="反映方式"
-        ></el-table-column>
-        <el-table-column
-          align="center"
-          prop="callerPhone"
-          label="来电电话"
-          width="100px"
-        ></el-table-column>
-        <el-table-column
-          align="center"
-          prop="fileNo"
-          label="案卷号"
-        ></el-table-column>
-        <el-table-column
-          align="center"
-          prop="label"
-          label="标签"
-        ></el-table-column>
-        <!-- <el-table-column
-          align="center"
-          prop="remark"
-          label="备注"
-        ></el-table-column> -->
-        <el-table-column label="备注" align="center">
-          <template #default="scope">
-            <el-popover
-              effect="light"
-              trigger="hover"
-              placement="top"
-              width="auto"
-            >
-              <template #default>
-                <div>{{ scope.row.remark }}</div>
-              </template>
-              <template #reference>
-                <el-tag>查看</el-tag>
-              </template>
-            </el-popover>
-          </template>
-        </el-table-column>
-
-        <el-table-column align="center" label="指派人员">
-          <template #default="scope"
-            >{{ getAssigneeName(scope.row.assignee) }}
-          </template>
-        </el-table-column>
-        <!-- TODO  新增操作区域 编辑/删除 -->
-        <el-table-column fixed="left" align="center" label="操作" width="130px">
-          <template #default="scope">
-            <div
-              style="
-                display: flex;
-                justify-content: center;
-                align-items: center;
-              "
-            >
-              <el-button
-                size="small"
-                type="primary"
-                plain
-                @click="goWorkDetailData(scope.row.workIdentifier)"
-              >
-                编辑
-              </el-button>
-              <el-button
-                size="small"
-                type="danger"
-                plain
-                @click="deleteWork(scope.row.workIdentifier)"
-              >
-                删除
-              </el-button>
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-  </div>
-</template>
-
-<style lang="scss" scoped>
-.page {
-  background-color: #f5f5f5;
-  padding: 10px;
-  width: 100%;
-  min-height: 100vh;
-  overflow-y: hidden;
 }
-</style>
+async function archive(w: WorkRecord) {
+  const reason = prompt("归档原因");
+  if (!reason?.trim()) return;
+  try {
+    await api("/deleteWork", {
+      workIdentifier: w.workIdentifier,
+      version: w.version,
+      reason,
+    });
+    await load();
+  } catch (e) {
+    error.value = (e as Error).message;
+  }
+}
+onMounted(load);
+</script>
+<template>
+  <header class="page-heading">
+    <div>
+      <p>城北营销 · 服务工单</p>
+      <h1>工单台账</h1>
+    </div>
+    <div class="actions">
+      <button
+        class="icon-button"
+        title="刷新"
+        :disabled="loading"
+        @click="load"
+      >
+        <RefreshCw :size="18" /></button
+      ><RouterLink class="button primary" to="/createWork"
+        ><Plus :size="18" />新建工单</RouterLink
+      >
+    </div>
+  </header>
+  <section class="metrics">
+    <div>
+      <span>当前工单</span><strong>{{ items.length }}</strong>
+    </div>
+    <div>
+      <span>待接单</span
+      ><strong>{{ items.filter((w) => w.status === "待接单").length }}</strong>
+    </div>
+    <div>
+      <span>待回访</span
+      ><strong>{{ items.filter((w) => w.status === "待回访").length }}</strong>
+    </div>
+    <div class="warning">
+      <span>超过完成时限</span
+      ><strong>{{ items.filter((w) => overdue(w)).length }}</strong>
+    </div>
+  </section>
+  <div class="toolbar">
+    <input
+      v-model="query"
+      aria-label="搜索工单"
+      placeholder="案件编号、地址、内容或办理人"
+      @input="page = 1"
+    /><select v-model="status" aria-label="工单状态" @change="page = 1">
+      <option value="">全部状态</option>
+      <option v-for="state in Object.keys(transitions)" :key="state">
+        {{ state }}
+      </option></select
+    ><label class="check"
+      ><input
+        v-model="onlyLate"
+        type="checkbox"
+        @change="page = 1"
+      />仅看超时</label
+    ><span class="muted">{{ filtered.length }} 条</span>
+  </div>
+  <p v-if="error" class="error" role="alert">{{ error }}</p>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>案件 / 反映内容</th>
+          <th>地址 / 联系人</th>
+          <th>办理人</th>
+          <th>完成时限</th>
+          <th>状态</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="w in rows" :key="w.workIdentifier">
+          <td>
+            <RouterLink
+              class="record-link"
+              :to="{ path: '/workDetailData', query: { id: w.workIdentifier } }"
+              >{{ w.workIdentifier }}</RouterLink
+            ><span class="cell-secondary">{{ w.workContent }}</span>
+          </td>
+          <td>
+            {{ w.workAddress
+            }}<span class="cell-secondary">{{ w.contactPerson }}</span>
+          </td>
+          <td>{{ getAssigneeName(w.assignee) }}</td>
+          <td :class="{ danger: overdue(w) }">
+            {{ w.completionTimeLimit || "未设置" }}
+          </td>
+          <td>
+            <span
+              class="badge"
+              :class="{
+                done: w.status === '已完成',
+                pending: w.status === '待接单',
+              }"
+              >{{ w.status }}</span
+            >
+          </td>
+          <td>
+            <div class="actions">
+              <RouterLink
+                class="icon-button"
+                title="查看工单"
+                :to="{
+                  path: '/workDetailData',
+                  query: { id: w.workIdentifier },
+                }"
+                ><ArrowUpRight :size="18" /></RouterLink
+              ><button
+                v-if="role === 'admin'"
+                class="icon-button"
+                title="归档工单"
+                @click="archive(w)"
+              >
+                <Archive :size="17" />
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr v-if="!rows.length">
+          <td colspan="6" class="empty">
+            {{ loading ? "加载中…" : "没有符合条件的工单" }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <footer class="pagination">
+    <button :disabled="current === 1" @click="page = current - 1">上一页</button
+    ><span>{{ current }} / {{ pages }}</span
+    ><button :disabled="current === pages" @click="page = current + 1">
+      下一页
+    </button>
+  </footer>
+</template>

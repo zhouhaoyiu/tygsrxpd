@@ -5,6 +5,7 @@ export interface Person {
 }
 
 export interface WorkRecord {
+  version?: number;
   workIdentifier: string;
   workType: string;
   workSource: string;

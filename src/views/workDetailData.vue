@@ -1,329 +1,148 @@
-<!-- eslint-disable @typescript-eslint/no-unused-vars -->
-<!-- eslint-disable no-undef -->
-<script lang="ts" setup>
-import { onMounted, ref, watch, type Ref } from "vue";
-import type { WorkRecord } from "@/types/domain";
-
-let workData = ref<WorkRecord[]>([]);
-let selectDisplay = ref(false) as Ref<boolean>;
-let selectList = ref<WorkRecord[]>([]);
-let workIdentifier = ref("") as Ref<string>;
-let displayMode = ref(false) as Ref<boolean>;
-
-const submitChangeWork = async () => {
-  const res = await fetch("http://localhost:5000/changeWork", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      workIdentifier: workIdentifier.value,
-      workData: workData.value[0],
-    }),
-  });
-  const data = await res.json();
-  if (data.success) {
-    localStorage.setItem("workIdentifier", workIdentifier.value);
-    displayMode.value = false;
-    // 刷新组件
-    const res = await fetch("http://localhost:5000/getWorkDetail", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        workIdentifier: workIdentifier.value,
-      }),
+<script setup lang="ts">
+import { computed, onMounted, ref, watch } from "vue";
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute } from "vue-router";
+import { api } from "@/api";
+import { transitions } from "@/workflow";
+import type { WorkRecord, Person } from "@/types/domain";
+import WorkEditor from "@/components/WorkEditor.vue";
+import { Save, RefreshCw, ArrowLeft } from "@lucide/vue";
+const route = useRoute();
+const form = ref<WorkRecord | null>(null);
+const original = ref("");
+const originalStatus = ref("");
+const people = ref<Person[]>([]);
+const history = ref<
+  { action: string; actor: string; reason: string; createdAt: string }[]
+>([]);
+const reason = ref("");
+const error = ref("");
+const busy = ref(false);
+let requestId = 0;
+const dirty = computed(
+  () => !!form.value && JSON.stringify(form.value) !== original.value,
+);
+const states = computed(() => [
+  originalStatus.value,
+  ...(originalStatus.value === "已完成" &&
+  sessionStorage.getItem("dispatchRole") !== "admin"
+    ? []
+    : transitions[originalStatus.value] || []),
+]);
+async function load() {
+  if (dirty.value && !confirm("重新读取会放弃未保存修改，继续？")) return;
+  const current = ++requestId;
+  busy.value = true;
+  error.value = "";
+  form.value = null;
+  try {
+    const id = String(route.query.id || "");
+    if (!id) throw new Error("缺少工单编号");
+    const data = await api<WorkRecord[]>("/getWorkDetail", {
+      workIdentifier: id,
     });
-    const data = (await res.json()) as WorkRecord[];
-    workData.value = data;
-    // @ts-ignore
-    ElMessage.success("修改成功");
-  } else {
-    // @ts-ignore
-    ElMessage.error("修改失败");
+    const p = await api<Person[]>("/getPersonList");
+    const h = await api<typeof history.value>(
+      "/workHistory?workIdentifier=" + encodeURIComponent(id),
+    );
+    if (current !== requestId) return;
+    if (!data[0]) throw new Error("工单不存在");
+    form.value = data[0];
+    original.value = JSON.stringify(data[0]);
+    originalStatus.value = data[0].status;
+    people.value = p;
+    history.value = h;
+    reason.value = "";
+  } catch (e) {
+    if (current === requestId) error.value = (e as Error).message;
+  } finally {
+    if (current === requestId) busy.value = false;
   }
-};
-//  待接单待到场待处理已完成已挂起已终止已作废
-const statusList = [
-  {
-    label: "待接单",
-    value: "待接单",
-  },
-  {
-    label: "待到场",
-    value: "待到场",
-  },
-  {
-    label: "待处理",
-    value: "待处理",
-  },
-  {
-    label: "已完成",
-    value: "已完成",
-  },
-  {
-    label: "已挂起",
-    value: "已挂起",
-  },
-  {
-    label: "已终止",
-    value: "已终止",
-  },
-  {
-    label: "已作废",
-    value: "已作废",
-  },
-];
-
-onMounted(async () => {
-  const res = await fetch("http://localhost:5000/getWorkList");
-  const data = (await res.json()) as WorkRecord[];
-  selectList.value = data;
-  if (!localStorage.getItem("workIdentifier")) {
-    selectDisplay.value = true;
-    const WorkIdentifier = data[0].workIdentifier;
-    workIdentifier.value = WorkIdentifier;
-    const res2 = await fetch("http://localhost:5000/getWorkDetail", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        workIdentifier: WorkIdentifier,
-      }),
-    });
-    const data2 = (await res2.json()) as WorkRecord[];
-    workData.value = data2;
-    // console.log(workData.value);
-  } else {
-    workIdentifier.value = localStorage.getItem("workIdentifier") || "";
-    const res = await fetch("http://localhost:5000/getWorkDetail", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        workIdentifier: localStorage.getItem("workIdentifier"),
-      }),
-    });
-
-    const data = (await res.json()) as WorkRecord[];
-    workData.value = data;
-    // console.log(workData.value);
-  }
-});
-
-//如果displayMode由true变为false，即编辑状态变为查看状态，就提交修改
-watch(displayMode, async (newVal) => {
-  if (!newVal) {
-    submitChangeWork();
-  }
-});
-
-// 当workIdentifier改变时，重新请求数据
-watch(workIdentifier, async (newVal) => {
-  const res = await fetch("http://localhost:5000/getWorkDetail", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      workIdentifier: newVal,
-    }),
-  });
-  const data = (await res.json()) as WorkRecord[];
-  workData.value = data;
-  localStorage.setItem("workIdentifier", newVal);
-});
-</script>
-
-<template>
-  <div class="page">
-    <!-- {{ workData[0] }} -->
-    <title-com>
-      <template #title>
-        <span>工单数据</span>
-      </template>
-    </title-com>
-    <el-select v-model="workIdentifier" placeholder="请选择">
-      <el-option
-        v-for="item in selectList"
-        :key="item.workIdentifier"
-        :label="item.workIdentifier"
-        :value="item.workIdentifier"
-      ></el-option>
-    </el-select>
-    <div>
-      <el-switch
-        v-model="displayMode"
-        active-text="编辑"
-        inactive-text="查看"
-        style="--el-switch-on-color: #2b5cab; --el-switch-off-color: #2b5cab"
-        size="large"
-      />
-    </div>
-    <div>
-      <h1>{{ workIdentifier }}</h1>
-    </div>
-    <el-descriptions v-if="!displayMode" :column="3" border>
-      <template #extra>
-        <el-button
-          color="#2b5cab"
-          @click="() => (displayMode = true)"
-          type="primary"
-        >
-          编辑
-        </el-button>
-      </template>
-      <el-descriptions-item align="center" label="案件编号">
-        {{ workData[0]?.workIdentifier }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="业务类型">
-        {{ workData[0]?.workType }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="反映来源">
-        {{ workData[0]?.workSource }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="反映内容">
-        {{ workData[0]?.workContent }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="联系人">
-        {{ workData[0]?.contactPerson }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="联系电话">
-        {{ workData[0]?.contactPhone }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="反映地址">
-        {{ workData[0]?.workAddress }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="户号">
-        {{ workData[0]?.householdNumber }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="表身号">
-        {{ workData[0]?.waterMeterNumber }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="到场时限">
-        {{ workData[0]?.arrivalTimeLimit }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="完成时限">
-        {{ workData[0]?.completionTimeLimit }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="反映区名">
-        {{ workData[0]?.workArea }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="用水性质">
-        {{ workData[0]?.waterUseNature }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="反映方式">
-        {{ workData[0]?.workMode }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="来电电话">
-        {{ workData[0]?.callerPhone }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="案卷号">
-        {{ workData[0]?.fileNo }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="标签">
-        {{ workData[0]?.label }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="备注">
-        {{ workData[0]?.remark }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="状态">
-        {{ workData[0]?.status }}
-      </el-descriptions-item>
-      <el-descriptions-item align="center" label="创建时间">
-        {{ workData[0]?.createTime }}
-      </el-descriptions-item>
-    </el-descriptions>
-    <div v-else>
-      <el-descriptions :column="3" border>
-        <template #extra>
-          <el-button
-            color="#2b5cab"
-            @click="() => (displayMode = false)"
-            type="primary"
-          >
-            保存
-          </el-button>
-        </template>
-        <el-descriptions-item label="案件编号">
-          {{ workData[0]?.workIdentifier }}
-        </el-descriptions-item>
-        <el-descriptions-item label="业务类型">
-          <el-input v-model="workData[0].workType" />
-        </el-descriptions-item>
-        <el-descriptions-item label="反映来源">
-          <el-input v-model="workData[0].workSource" />
-        </el-descriptions-item>
-        <el-descriptions-item label="反映内容">
-          <el-input v-model="workData[0].workContent" />
-        </el-descriptions-item>
-        <el-descriptions-item label="联系人">
-          <el-input v-model="workData[0].contactPerson" />
-        </el-descriptions-item>
-        <el-descriptions-item label="联系电话">
-          <el-input v-model="workData[0].contactPhone" />
-        </el-descriptions-item>
-        <el-descriptions-item label="反映地址">
-          <el-input v-model="workData[0].workAddress" />
-        </el-descriptions-item>
-        <el-descriptions-item label="户号">
-          <el-input v-model="workData[0].householdNumber" />
-        </el-descriptions-item>
-        <el-descriptions-item label="表身号">
-          <el-input v-model="workData[0].waterMeterNumber" />
-        </el-descriptions-item>
-        <el-descriptions-item label="到场时限">
-          <el-input v-model="workData[0].arrivalTimeLimit" />
-        </el-descriptions-item>
-        <el-descriptions-item label="完成时限">
-          <el-input v-model="workData[0].completionTimeLimit" />
-        </el-descriptions-item>
-        <el-descriptions-item label="反映区名">
-          <el-input v-model="workData[0].workArea" />
-        </el-descriptions-item>
-        <el-descriptions-item label="用水性质">
-          <el-input v-model="workData[0].waterUseNature" />
-        </el-descriptions-item>
-        <el-descriptions-item label="反映方式">
-          <el-input v-model="workData[0].workMode" />
-        </el-descriptions-item>
-        <el-descriptions-item label="来电电话">
-          <el-input v-model="workData[0].callerPhone" />
-        </el-descriptions-item>
-        <el-descriptions-item label="案卷号">
-          <el-input v-model="workData[0].fileNo" />
-        </el-descriptions-item>
-        <el-descriptions-item label="标签">
-          <el-input v-model="workData[0].label" />
-        </el-descriptions-item>
-        <el-descriptions-item label="备注">
-          <el-input v-model="workData[0].remark" />
-        </el-descriptions-item>
-        <el-descriptions-item label="状态">
-          <el-select v-model="workData[0].status" placeholder="请选择">
-            <el-option
-              v-for="item in statusList"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
-        </el-descriptions-item>
-      </el-descriptions>
-    </div>
-    <!-- {{ JSON.stringify(workData[0], null, 4) }} -->
-  </div>
-</template>
-
-<style lang="scss" scoped>
-.page {
-  background-color: #f5f5f5;
-  padding: 10px;
-  width: 100%;
-  min-height: 100vh;
-  overflow-y: hidden;
 }
-</style>
+async function save() {
+  if (busy.value || !form.value) return;
+  busy.value = true;
+  error.value = "";
+  try {
+    const result = await api<{ data: WorkRecord }>("/changeWork", {
+      workData: { ...form.value },
+      reason: reason.value,
+    });
+    form.value = result.data;
+    original.value = JSON.stringify(result.data);
+    originalStatus.value = result.data.status;
+    reason.value = "";
+    history.value = await api(
+      "/workHistory?workIdentifier=" +
+        encodeURIComponent(result.data.workIdentifier),
+    );
+  } catch (e) {
+    error.value = (e as Error).message;
+  } finally {
+    busy.value = false;
+  }
+}
+const canLeave = () =>
+  !busy.value && (!dirty.value || confirm("离开会放弃未保存修改，继续？"));
+onBeforeRouteLeave(canLeave);
+onBeforeRouteUpdate(canLeave);
+watch(
+  () => route.query.id,
+  () => {
+    original.value = JSON.stringify(form.value);
+    load();
+  },
+);
+onMounted(load);
+</script>
+<template>
+  <header class="page-heading">
+    <div>
+      <RouterLink class="back" to="/manageWork"
+        ><ArrowLeft :size="16" />工单台账</RouterLink
+      >
+      <h1>{{ form?.workIdentifier || "工单详情" }}</h1>
+    </div>
+    <button class="icon-button" title="重新读取" :disabled="busy" @click="load">
+      <RefreshCw :size="18" />
+    </button>
+  </header>
+  <p v-if="error" class="error" role="alert">{{ error }}</p>
+  <form v-if="form" @submit.prevent="save">
+    <div class="record-meta">
+      <span>版本 {{ form.version }}</span
+      ><span>{{ form.createTime }}</span
+      ><span>{{ dirty ? "有未保存修改" : "已保存" }}</span>
+    </div>
+    <WorkEditor
+      v-model="form"
+      :people="people"
+      :statuses="states"
+      editing
+      :disabled="busy"
+    /><label
+      >变更原因<textarea
+        v-model="reason"
+        rows="2"
+        maxlength="2000"
+        :disabled="busy"
+      />
+    </label>
+    <footer class="form-footer">
+      <span class="muted">{{ form.status }}</span
+      ><button class="primary" :disabled="busy || !dirty">
+        <Save :size="17" />{{ busy ? "保存中…" : "保存修改" }}
+      </button>
+    </footer>
+  </form>
+  <p v-else class="empty">{{ busy ? "加载中…" : "未载入工单" }}</p>
+  <section v-if="history.length" class="history">
+    <h2>操作记录</h2>
+    <ol>
+      <li v-for="(entry, i) in history" :key="i">
+        <strong>{{ entry.action }}</strong
+        ><span>{{ entry.actor }} · {{ entry.createdAt }}</span>
+        <p v-if="entry.reason">{{ entry.reason }}</p>
+      </li>
+    </ol>
+  </section>
+</template>

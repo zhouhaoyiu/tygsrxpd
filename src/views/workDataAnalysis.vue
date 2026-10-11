@@ -1,233 +1,82 @@
-<script lang="ts" setup>
-// echarts
-import * as echarts from "echarts";
-import { onMounted, ref } from "vue";
+<script setup lang="ts">
+import { computed, onMounted, ref } from "vue";
+import { api } from "@/api";
 import { getAssigneeName, type WorkRecord } from "@/types/domain";
-
-let workCount = ref(0);
-// 待处理工单数
-let waitCount = ref(0);
-
-onMounted(async () => {
-  const res = await fetch("http://localhost:5000/getWorkList");
-  const data = (await res.json()) as WorkRecord[];
-  console.log(data);
-  workCount.value = data.length;
-  waitCount.value = data.filter((item) => item.status === "处理中").length;
-  // 根据status分类
-  const statusList = data.map((item) => item.status);
-  const statusSet = new Set(statusList);
-  const statusArray = Array.from(statusSet);
-  const statusCount = statusArray.map((item) => {
-    return statusList.filter((status) => status === item).length;
-  });
-
-  const statusCharts = echarts.init(
-    document.querySelector(".statusCharts") as HTMLDivElement,
-  );
-
-  // 图表居中
-  const option = {
-    title: {
-      text: "案件状态统计",
-      left: "center",
+import { transitions, overdue } from "@/workflow";
+import { RefreshCw } from "@lucide/vue";
+const rows = ref<WorkRecord[]>([]);
+const error = ref("");
+const loading = ref(false);
+const byPerson = computed(() =>
+  Array.from(new Set(rows.value.map((w) => getAssigneeName(w.assignee)))).map(
+    (name) => {
+      const work = rows.value.filter(
+        (w) => getAssigneeName(w.assignee) === name,
+      );
+      return {
+        name,
+        total: work.length,
+        complete: work.filter((w) => w.status === "已完成").length,
+        late: work.filter((w) => overdue(w)).length,
+      };
     },
-    tooltip: {
-      trigger: "item",
-    },
-    label: {
-      show: true,
-      position: "outside",
-      formatter: "{b} {c}",
-      color: "#235894",
-      fontSize: 14,
-    },
-    legend: {
-      orient: "vertical",
-      left: "left",
-    },
-    series: [
-      {
-        name: "案件状态",
-        type: "pie",
-        radius: "50%",
-        data: statusArray.map((item, index) => {
-          return {
-            name: item,
-            value: statusCount[index],
-          };
-        }),
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: "rgba(0, 0, 0, 0.5)",
-          },
-        },
-      },
-    ],
-  };
-
-  statusCharts.setOption(option);
-
-  // 根据assignee分类
-  const assigneeCharts = echarts.init(
-    document.querySelector(".assigneeCharts") as HTMLDivElement,
-  );
-
-  const assigneeList = data.map((item) => getAssigneeName(item.assignee));
-  const assigneeSet = new Set(assigneeList);
-  const assigneeArray = Array.from(assigneeSet);
-  const assigneeCount = assigneeArray.map((item) => {
-    return assigneeList.filter((assignee) => assignee === item).length;
-  });
-
-  const assigneeOption = {
-    title: {
-      text: "案件办理人统计",
-      left: "center",
-    },
-    tooltip: {
-      trigger: "item",
-    },
-    label: {
-      show: true,
-      position: "outside",
-      formatter: "{b} {c}",
-      color: "#235894",
-      fontSize: 14,
-    },
-    legend: {
-      orient: "vertical",
-      left: "left",
-    },
-    series: [
-      {
-        name: "案件办理人",
-        type: "pie",
-        radius: "50%",
-        data: assigneeArray.map((item, index) => {
-          return {
-            name: item,
-            value: assigneeCount[index],
-          };
-        }),
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: "rgba(0, 0, 0, 0.5)",
-          },
-        },
-      },
-    ],
-  };
-
-  assigneeCharts.setOption(assigneeOption);
-  const newWorkCharts = echarts.init(
-    document.querySelector(".newWorkCharts") as HTMLDivElement,
-  );
-
-  const newWorkList = data
-    .map((item) => {
-      // 2023/2/9 11:16:45
-      const date = new Date(item.createTime);
-      const year = date.getFullYear();
-      const month = date.getMonth() + 1;
-      const day = date.getDate();
-      return `${year}/${month}/${day}`;
-    })
-    .slice(0, 15)
-    .reverse();
-
-  const newWorkSet = new Set(newWorkList);
-  const newWorkArray = Array.from(newWorkSet);
-  const newWorkCount = newWorkArray.map((item) => {
-    return newWorkList.filter((newWork) => newWork === item).length;
-  });
-
-  const newWorkOption = {
-    title: {
-      text: "每日新增案件统计",
-      left: "center",
-    },
-    tooltip: {
-      trigger: "axis",
-    },
-    xAxis: {
-      type: "category",
-      data: newWorkArray,
-    },
-    yAxis: {
-      type: "value",
-    },
-    series: [
-      {
-        data: newWorkCount,
-        type: "line",
-      },
-    ],
-  };
-
-  newWorkCharts.setOption(newWorkOption);
-});
+  ),
+);
+async function load() {
+  loading.value = true;
+  error.value = "";
+  try {
+    rows.value = await api("/getWorkList");
+  } catch (e) {
+    error.value = (e as Error).message;
+  } finally {
+    loading.value = false;
+  }
+}
+onMounted(load);
 </script>
-
 <template>
-  <div class="page">
-    <title-com>
-      <template #title>
-        <span>数据可视化</span>
-      </template>
-    </title-com>
+  <header class="page-heading">
     <div>
-      <h1>目前共有工单{{ workCount }}个，处理中工单{{ waitCount }}个</h1>
-      <div
-        style="
-          width: 100%;
-          height: 300px;
-          background-color: #fbfbfb99;
-          border-radius: 5px;
-          margin-bottom: 20px;
-          box-shadow: 1px 1px 8px 1px #eee;
-          padding: 4px;
-        "
-        class="newWorkCharts"
-      ></div>
+      <p>当前未归档工单</p>
+      <h1>办理统计</h1>
     </div>
-    <div style="display: flex">
-      <div
-        style="
-          width: 420px;
-          height: 300px;
-          background-color: #fbfbfb99;
-          margin-right: 20px;
-          border-radius: 5px;
-          box-shadow: 1px 1px 8px 1px #eee;
-          padding: 4px;
-        "
-        class="statusCharts"
-      ></div>
-      <div
-        style="
-          width: 400px;
-          height: 300px;
-          background-color: #fbfbfb99;
-          border-radius: 5px;
-          box-shadow: 1px 1px 8px 1px #eee;
-          padding: 4px;
-        "
-        class="assigneeCharts"
-      ></div>
+    <button class="icon-button" title="刷新" :disabled="loading" @click="load">
+      <RefreshCw :size="18" />
+    </button>
+  </header>
+  <p v-if="error" class="error">{{ error }}</p>
+  <section class="status-breakdown">
+    <div v-for="state in Object.keys(transitions)" :key="state">
+      <span>{{ state }}</span
+      ><meter
+        :value="rows.filter((w) => w.status === state).length"
+        :max="rows.length || 1"
+      /><strong>{{ rows.filter((w) => w.status === state).length }}</strong>
     </div>
+  </section>
+  <h2>人员办理情况</h2>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>办理人</th>
+          <th>工单数</th>
+          <th>已完成</th>
+          <th>超时未完成</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="p in byPerson" :key="p.name">
+          <td>{{ p.name }}</td>
+          <td>{{ p.total }}</td>
+          <td>{{ p.complete }}</td>
+          <td>{{ p.late }}</td>
+        </tr>
+        <tr v-if="!byPerson.length">
+          <td colspan="4" class="empty">暂无工单</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.page {
-  background-color: #f5f5f5;
-  padding: 10px;
-  width: 100%;
-  min-height: 100vh;
-}
-</style>

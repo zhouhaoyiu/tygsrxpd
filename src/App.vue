@@ -1,69 +1,47 @@
-<!-- eslint-disable @typescript-eslint/no-unused-vars -->
-<!-- eslint-disable no-undef -->
-<script lang="ts" setup>
-import { onBeforeMount, ref } from "vue";
-import SideBar from "./components/leftBar.vue";
-import usePersonList from "./stores/personList";
-import type { Person } from "./types/domain";
-const UsePersonList = usePersonList();
-let personList = ref<Person[]>([]);
-let loadingTrue = ref(true);
-let ErrorInfo = ref("");
-onBeforeMount(async () => {
-  // @ts-ignore
-  const loadingInstance1 = ElLoading.service({
-    fullscreen: true,
-    text: "加载中",
-  });
+<script setup lang="ts">
+import logo from "@/assets/water-logo.png";
+import { useRoute, useRouter } from "vue-router";
+import { api } from "./api";
+import {
+  ClipboardList,
+  FilePlus2,
+  ChartNoAxesColumn,
+  Users,
+  LogOut,
+} from "@lucide/vue";
+const route = useRoute();
+const router = useRouter();
+const isAdmin = () => sessionStorage.getItem("dispatchRole") === "admin";
+async function logout() {
   try {
-    console.log("mounted");
-    const res = await fetch("http://localhost:5000/getPersonList");
-    const data = (await res.json()) as Person[];
-    personList.value = data;
-    console.log(data);
-    UsePersonList.setPersonList(personList.value);
-    loadingTrue.value = true;
-    loadingInstance1.close();
-  } catch (error) {
-    /* empty */
-    console.log(error);
-    ErrorInfo.value = String(error);
-    loadingTrue.value = false;
-    // 变为加载失败状态
-    loadingInstance1.close();
-  }
-});
-</script>
-
-<template>
-  <div class="content">
-    <SideBar />
-    <RouterView />
-    <!-- <div class="loadingTrue"> -->
-    <!-- <div>
-        {{ ErrorInfo }}
-      </div>
-      <div>加载失败</div>
-    </div> -->
-  </div>
-  <!-- <footer>powered by <a href="www.github.com/zhouhaoyiu">zhouhaoyiu</a></footer> -->
-</template>
-
-<style scoped lang="scss">
-.content {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  height: 100%;
-  .loadingTrue {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100vh;
-    font-size: 48px;
-    color: red;
+    await api("/logout", {});
+  } finally {
+    sessionStorage.removeItem("dispatchToken");
+    sessionStorage.removeItem("dispatchRole");
+    router.push("/login");
   }
 }
-</style>
+</script>
+<template>
+  <RouterView v-if="route.path === '/login'" />
+  <div v-else class="workspace">
+    <header class="masthead">
+      <img class="brand-mark" :src="logo" alt="太原供水标志" />
+      <div><strong>太原供水</strong><span>热线派单</span></div>
+      <button class="icon-button" title="退出登录" @click="logout">
+        <LogOut :size="19" />
+      </button>
+    </header>
+    <nav class="navigation">
+      <RouterLink to="/manageWork"
+        ><ClipboardList :size="18" />工单台账</RouterLink
+      ><RouterLink to="/createWork"><FilePlus2 :size="18" />新建工单</RouterLink
+      ><RouterLink to="/workDataAnalysis"
+        ><ChartNoAxesColumn :size="18" />办理统计</RouterLink
+      ><RouterLink v-if="isAdmin()" to="/managePerson"
+        ><Users :size="18" />人员管理</RouterLink
+      >
+    </nav>
+    <main><RouterView /></main>
+  </div>
+</template>

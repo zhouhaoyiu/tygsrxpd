@@ -5,7 +5,7 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      redirect: "/createWork",
+      redirect: "/manageWork",
     },
     {
       path: "/createWork",
@@ -47,4 +47,8 @@ const router = createRouter({
   ],
 });
 
+router.beforeEach((to) => {
+  if (to.path !== "/login" && !sessionStorage.getItem("dispatchToken")) return "/login";
+  if (to.path === "/managePerson" && sessionStorage.getItem("dispatchRole") !== "admin") return "/manageWork";
+});
 export default router;

@@ -12,20 +12,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    ElButton: typeof import('element-plus/es')['ElButton']
-    ElDescriptions: typeof import('element-plus/es')['ElDescriptions']
-    ElDescriptionsItem: typeof import('element-plus/es')['ElDescriptionsItem']
-    ElDialog: typeof import('element-plus/es')['ElDialog']
-    ElForm: typeof import('element-plus/es')['ElForm']
-    ElFormItem: typeof import('element-plus/es')['ElFormItem']
-    ElInput: typeof import('element-plus/es')['ElInput']
-    ElOption: typeof import('element-plus/es')['ElOption']
-    ElPopover: typeof import('element-plus/es')['ElPopover']
-    ElSelect: typeof import('element-plus/es')['ElSelect']
-    ElSwitch: typeof import('element-plus/es')['ElSwitch']
-    ElTable: typeof import('element-plus/es')['ElTable']
-    ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
-    ElTag: typeof import('element-plus/es')['ElTag']
     IconCommunity: typeof import('./src/components/icons/IconCommunity.vue')['default']
     IconDocumentation: typeof import('./src/components/icons/IconDocumentation.vue')['default']
     IconEcosystem: typeof import('./src/components/icons/IconEcosystem.vue')['default']
@@ -35,25 +21,12 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TitleCom: typeof import('./src/components/titleCom.vue')['default']
+    WorkEditor: typeof import('./src/components/WorkEditor.vue')['default']
   }
 }
 
 // For TSX support
 declare global {
-  const ElButton: typeof import('element-plus/es')['ElButton']
-  const ElDescriptions: typeof import('element-plus/es')['ElDescriptions']
-  const ElDescriptionsItem: typeof import('element-plus/es')['ElDescriptionsItem']
-  const ElDialog: typeof import('element-plus/es')['ElDialog']
-  const ElForm: typeof import('element-plus/es')['ElForm']
-  const ElFormItem: typeof import('element-plus/es')['ElFormItem']
-  const ElInput: typeof import('element-plus/es')['ElInput']
-  const ElOption: typeof import('element-plus/es')['ElOption']
-  const ElPopover: typeof import('element-plus/es')['ElPopover']
-  const ElSelect: typeof import('element-plus/es')['ElSelect']
-  const ElSwitch: typeof import('element-plus/es')['ElSwitch']
-  const ElTable: typeof import('element-plus/es')['ElTable']
-  const ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
-  const ElTag: typeof import('element-plus/es')['ElTag']
   const IconCommunity: typeof import('./src/components/icons/IconCommunity.vue')['default']
   const IconDocumentation: typeof import('./src/components/icons/IconDocumentation.vue')['default']
   const IconEcosystem: typeof import('./src/components/icons/IconEcosystem.vue')['default']
@@ -63,4 +36,5 @@ declare global {
   const RouterLink: typeof import('vue-router')['RouterLink']
   const RouterView: typeof import('vue-router')['RouterView']
   const TitleCom: typeof import('./src/components/titleCom.vue')['default']
+  const WorkEditor: typeof import('./src/components/WorkEditor.vue')['default']
 }
