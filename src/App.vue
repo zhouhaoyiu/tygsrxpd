@@ -11,6 +11,7 @@ import {
 } from "@lucide/vue";
 const route = useRoute();
 const router = useRouter();
+const localPreview = import.meta.env.VITE_LOCAL_DISPATCH === "1";
 const isAdmin = () => sessionStorage.getItem("dispatchRole") === "admin";
 async function logout() {
   try {
@@ -27,7 +28,7 @@ async function logout() {
   <div v-else class="workspace">
     <header class="masthead">
       <img class="brand-mark" :src="logo" alt="太原供水标志" />
-      <div><strong>太原供水</strong><span>热线派单</span></div>
+      <div><strong>太原供水</strong><span>{{ localPreview ? "热线派单 · 本地演示" : "热线派单" }}</span></div>
       <button class="icon-button" title="退出登录" @click="logout">
         <LogOut :size="19" />
       </button>

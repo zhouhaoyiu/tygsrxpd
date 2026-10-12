@@ -9,3 +9,7 @@ Vue 3 工作台，与 rxpd-server 配套使用。
 后端需执行工作流迁移并配置账号。微信通知未启用。
 
 验证：`pnpm test:unit`、`pnpm type-check`、`pnpm build`。
+
+本地运行时可设置 `VITE_API_PROXY=http://127.0.0.1:5096`，开发和预览服务器会将
+`/api` 请求代理到后端并移除该前缀。构建时设置 `VITE_LOCAL_DISPATCH=1` 显示本地演示标识。
+这些配置默认关闭，不连接生产服务。

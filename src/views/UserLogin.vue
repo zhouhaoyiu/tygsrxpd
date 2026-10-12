@@ -8,6 +8,7 @@ const password = ref("");
 const busy = ref(false);
 const error = ref("");
 const router = useRouter();
+const localPreview = import.meta.env.VITE_LOCAL_DISPATCH === "1";
 async function login() {
   if (busy.value) return;
   busy.value = true;
@@ -35,6 +36,7 @@ async function login() {
       <img class="brand-mark" :src="logo" alt="太原供水标志" />
       <p>太原供水 · 城北营销</p>
       <h1>热线派单</h1>
+      <p v-if="localPreview">本地演示 · 非生产数据</p>
       <label
         >账号<input
           v-model="username"

@@ -7,8 +7,20 @@ import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 
+const proxy = process.env.VITE_API_PROXY
+  ? {
+      "/api": {
+        target: process.env.VITE_API_PROXY,
+        changeOrigin: true,
+        rewrite: (path: string) => path.replace(/^\/api(?=\/|$)/, ""),
+      },
+    }
+  : undefined;
+
 // https://vitejs.dev/config/
 export default defineConfig({
+  server: { host: "127.0.0.1", proxy },
+  preview: { host: "127.0.0.1", proxy },
   plugins: [
     vue(),
     vueJsx(),
