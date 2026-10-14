@@ -13,17 +13,17 @@
     "lint:fix": "oxlint --fix --deny typescript/no-explicit-any ."
   },
   "dependencies": {
-    "@lucide/vue": "^1.55.0",
+    "@lucide/vue": "^1.56.0",
     "echarts": "^6.1.0",
     "element-plus": "^2.14.7",
     "pinia": "^4.0.3",
-    "vue": "^3.5.43",
+    "vue": "^3.5.44",
     "vue-router": "^5.4.0"
   },
   "devDependencies": {
     "@types/jsdom": "^30.0.0",
-    "@types/node": "^26.6.4",
-    "@vitejs/plugin-vue": "^6.0.9",
+    "@types/node": "^26.6.5",
+    "@vitejs/plugin-vue": "^6.0.10",
     "@vitejs/plugin-vue-jsx": "5.1.6",
     "@vue/tsconfig": "^0.9.1",
     "jsdom": "^30.1.2",
