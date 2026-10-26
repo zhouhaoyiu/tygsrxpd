@@ -13,7 +13,7 @@
     "lint:fix": "oxlint --fix --deny typescript/no-explicit-any ."
   },
   "dependencies": {
-    "@lucide/vue": "^1.57.0",
+    "@lucide/vue": "^1.61.0",
     "echarts": "^6.1.0",
     "element-plus": "^2.14.7",
     "pinia": "^4.1.0",
