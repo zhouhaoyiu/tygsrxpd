@@ -26,7 +26,7 @@
     "@vitejs/plugin-vue": "^6.0.10",
     "@vitejs/plugin-vue-jsx": "5.1.6",
     "@vue/tsconfig": "^0.9.1",
-    "jsdom": "^31.0.0",
+    "jsdom": "^31.0.1",
     "oxlint": "1.94.0",
     "prettier": "3.10.1",
     "sass": "^1.108.2",
