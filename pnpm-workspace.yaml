@@ -5,3 +5,9 @@ overrides:
 allowBuilds:
   "@parcel/watcher": true
   esbuild: true
+
+minimumReleaseAgeExclude:
+  - "@lucide/vue@1.81.0"
+  - vue-router@5.5.3
+  - "@types/node@26.6.11"
+  - vite@8.4.0
